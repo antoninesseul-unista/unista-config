@@ -161,14 +161,14 @@
                     :value="2"
                     :disabled="
                       store.definition.type !== 'axis' &&
-                      store.definition.type !== 'advAxis'
+                      store.definition.type !== 'mechatro'
                     "
                   >
                     2 ms
                     {{
                       store.definition.type !== "axis" &&
-                      store.definition.type !== "advAxis"
-                        ? "(Axes Only)"
+                      store.definition.type !== "mechatro"
+                        ? "(Axes & Mechatro Only)"
                         : ""
                     }}
                   </option>
@@ -178,8 +178,15 @@
                 </select>
               </div>
 
+              <AxisConfigurationPanel
+                v-if="store.definition.type === 'axis'"
+                :axis="eq"
+                :hasError="(field) => isFieldError(eq, field)"
+              />
+
               <div
                 v-if="
+                  store.definition.type !== 'axis' &&
                   store.definition.configFields &&
                   store.definition.configFields.length > 0
                 "
@@ -311,6 +318,7 @@
 
               <div
                 v-if="
+                  store.definition.type !== 'axis' &&
                   store.definition.controllerFields &&
                   store.definition.controllerFields.length > 0
                 "
@@ -444,6 +452,7 @@
 
               <div
                 v-if="
+                  store.definition.type !== 'axis' &&
                   store.definition.processFields &&
                   store.definition.processFields.length > 0
                 "
@@ -564,6 +573,7 @@
 
               <div
                 v-if="
+                  store.definition.type !== 'axis' &&
                   store.definition.parameterFields &&
                   store.definition.parameterFields.length > 0
                 "
@@ -676,11 +686,12 @@ import CollapsibleSection from "../components/CollapsibleSection.vue";
 import GhostCard from "../components/GhostCard.vue";
 import ParameterSidebar from "../components/ParameterSidebar.vue";
 import TranslationsFields from "../components/TranslationsFields.vue";
+import AxisConfigurationPanel from "../components/axis/AxisConfigurationPanel.vue";
 import { useParamSelection2D } from "../composables/useParamSelection2D";
 import { equipmentStores } from "../store/equipment";
 import { modules } from "../store/modules";
 import type { BaseEquipment, ConfigField } from "../types";
-import { sanitizeVariableName } from "../utils/helpers";
+import { isConfigFieldVisible, sanitizeVariableName } from "../utils/helpers";
 
 const props = defineProps<{ type: string }>();
 
@@ -708,28 +719,11 @@ const getRobotId = (eq: BaseEquipment): string | null => {
   return null;
 };
 
-const isCameraControllerBrandCompatible = (eq: BaseEquipment): boolean => {
-  const brand = eq.brand as string | undefined;
-  return brand === "CAMERA_UNDEFINED" || !!(brand && brand.includes("Keyence"));
-};
-
 const getFilteredConfiguration = (
   eq: BaseEquipment,
   cfg: ConfigField,
 ): boolean => {
-  if (store.value.definition.type !== "camera") return true;
-
-  const brandCompatible = isCameraControllerBrandCompatible(eq);
-
-  if (cfg.field === "managedByController") return brandCompatible;
-
-  const isControllerField = (
-    store.value.definition.controllerFields || []
-  ).some((f) => f.field === cfg.field);
-  if (isControllerField)
-    return brandCompatible && eq.managedByController === true;
-
-  return true;
+  return isConfigFieldVisible(eq, cfg);
 };
 
 const isParentLinkBroken = (eq: BaseEquipment): boolean => {
@@ -780,7 +774,7 @@ const isFieldError = (eq: BaseEquipment, field: string): boolean => {
     (cfg.type === "select" || cfg.type === "number") &&
     eq[field] === null
   ) {
-    if (!getFilteredConfiguration(eq, cfg)) return false;
+    if (!isConfigFieldVisible(eq, cfg)) return false;
     return true;
   }
 
@@ -810,7 +804,7 @@ const isFieldError = (eq: BaseEquipment, field: string): boolean => {
   if (
     store.value.definition.type === "camera" &&
     eq.managedByController === true &&
-    isCameraControllerBrandCompatible(eq)
+    isConfigFieldVisible(eq, { field: "managedByController" })
   ) {
     const requiredControllerFields = [
       "controllerName",
@@ -918,7 +912,7 @@ const getErrorMessage = (eq: BaseEquipment): string => {
   if (
     store.value.definition.type === "camera" &&
     eq.managedByController === true &&
-    isCameraControllerBrandCompatible(eq)
+    isConfigFieldVisible(eq, { field: "managedByController" })
   ) {
     if (
       isFieldError(eq, "controllerName") ||
@@ -938,7 +932,7 @@ const getErrorMessage = (eq: BaseEquipment): string => {
     (f) =>
       (f.type === "select" || f.type === "number") &&
       eq[f.field] === null &&
-      getFilteredConfiguration(eq, f),
+      isConfigFieldVisible(eq, f),
   );
   if (missingField) return `Please select a value for "${missingField.label}"`;
 

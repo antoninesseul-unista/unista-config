@@ -1,7 +1,7 @@
 import { computed, reactive } from "vue";
 import { EQUIPMENT_REGISTRY } from "../config/equipment";
 import type { BaseEquipment, ConfigField, Parameter } from "../types";
-import { generateId, reindex } from "../utils/helpers";
+import { generateId, isConfigFieldVisible, reindex } from "../utils/helpers";
 import { modules } from "./modules";
 
 // ─── State ────────────────────────────────────────────────────────────────────
@@ -14,7 +14,7 @@ const equipmentState = reactive<Record<string, BaseEquipment[]>>({
   analogOutput: [],
   directMotor: [],
   axis: [],
-  advAxis: [],
+  mechatro: [],
   camera: [],
   robot: [],
   robotJob: [],
@@ -43,14 +43,12 @@ const resolveDefaultValue = (field: ConfigField): any => {
 
 /**
  * Parses a robotMask string into a number.
- * Returns 0 for empty, missing, or invalid values.
  */
 const parseMask = (mask: string | undefined | null): number =>
   parseInt(mask || "0", 10) || 0;
 
 /**
  * Returns the robotId for scoped validations.
- * Only robotJob equipment is scoped to a parent robot.
  */
 const getRobotId = (equipment: BaseEquipment): string | null => {
   if (equipment.type === "robotJob") return equipment.robotId || null;
@@ -61,9 +59,6 @@ const getRobotId = (equipment: BaseEquipment): string | null => {
 
 /**
  * Returns true if any assigned robot violates variable index rules.
- * Rules:
- * 1. Assigned robots must have a valid index (> 0).
- * 2. (robotIndex, varIndex) must be unique within the store.
  */
 const hasRobotVarIndexError = (
   allParameters: Parameter[],
@@ -80,7 +75,6 @@ const hasRobotVarIndexError = (
 
     const currentIdx = indexes[robotIndex];
 
-    // Rule 1: Index required (> 0)
     if (
       currentIdx === null ||
       currentIdx === undefined ||
@@ -90,7 +84,6 @@ const hasRobotVarIndexError = (
       return true;
     }
 
-    // Rule 2: Index uniqueness per robot across the store
     for (const sibling of allParameters) {
       if (sibling === param) continue;
 
@@ -126,7 +119,7 @@ export function createEquipmentStore(type: keyof typeof EQUIPMENT_REGISTRY) {
     detail: "",
     reserve1: "",
     reserve2: "",
-    cycleTime: type === "axis" || type === "advAxis" ? 2 : 10,
+    cycleTime: type === "axis" || type === "mechatro" ? 2 : 10,
     ui: {
       showProps: true,
       showConfiguration: true,
@@ -204,7 +197,6 @@ export function createEquipmentStore(type: keyof typeof EQUIPMENT_REGISTRY) {
     ];
 
     return enabledItems.some((eq) => {
-      // 1. Parent link integrity
       if (definition.hasEmLink) {
         if (!eq.emId) return true;
         const linkedModule = modules.value.find((m) => m.id === eq.emId);
@@ -218,7 +210,6 @@ export function createEquipmentStore(type: keyof typeof EQUIPMENT_REGISTRY) {
         if (!parentRobot || !parentRobot.enable) return true;
       }
 
-      // 2. Name uniqueness
       if (!eq.name || eq.name.trim() === "") return true;
       const thisRobotId = getRobotId(eq);
       const isNameDuplicate = allActiveEquipment.some((other) => {
@@ -231,7 +222,6 @@ export function createEquipmentStore(type: keyof typeof EQUIPMENT_REGISTRY) {
       });
       if (isNameDuplicate) return true;
 
-      // 3. IP address validation
       if (eq.ipAddress !== undefined) {
         if (!eq.ipAddress || eq.ipAddress.trim() === "") return true;
         if (!isValidIpAddress(eq.ipAddress)) return true;
@@ -244,7 +234,6 @@ export function createEquipmentStore(type: keyof typeof EQUIPMENT_REGISTRY) {
         if (isIpDuplicate) return true;
       }
 
-      // 4. Robot job uniqueness
       if (type === "robotJob") {
         if (!eq.jobId) return true;
         if (eq.robotId) {
@@ -258,15 +247,14 @@ export function createEquipmentStore(type: keyof typeof EQUIPMENT_REGISTRY) {
         }
       }
 
-      // 5. Required select and number fields validation
       const hasMissingSelectOrNumber = allConfigFields.some(
         (field) =>
           (field.type === "select" || field.type === "number") &&
-          eq[field.field] === null,
+          eq[field.field] === null &&
+          isConfigFieldVisible(eq, field),
       );
       if (hasMissingSelectOrNumber) return true;
 
-      // 6. Robot variable index map validation
       const hasParamError = (eq.parameters ?? []).some((param) =>
         hasRobotVarIndexError(allStoreParameters, param),
       );
@@ -289,7 +277,7 @@ export const equipmentStores = {
   analogOutput: createEquipmentStore("analogOutput"),
   directMotor: createEquipmentStore("directMotor"),
   axis: createEquipmentStore("axis"),
-  advAxis: createEquipmentStore("advAxis"),
+  mechatro: createEquipmentStore("mechatro"),
   camera: createEquipmentStore("camera"),
   robot: createEquipmentStore("robot"),
   robotJob: createEquipmentStore("robotJob"),
