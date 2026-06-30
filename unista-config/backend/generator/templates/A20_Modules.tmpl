@@ -1,0 +1,34 @@
+ACTION A20_Modules: 
+	
+	// --------------------------------------------------------------------------------------------------------------- //
+	// UNIT MACHINE
+	// --------------------------------------------------------------------------------------------------------------- //
+
+	pUM.Active							:= TRUE;
+	pUM.ID								:= 0;
+
+	// Configuration 
+	pUM.Cfg.IsIndependant				:= FALSE;
+
+{{- /* Iterate over the modules array. Since Modules is a Go struct ([]MachineModule), we MUST use capitalized field names (Index, Name, IsEM) */}}
+{{- range $mod := .AppData.Modules }}
+	// ------------------------------------------------------------------------------------------------------- //
+	// MODULE LIST {{ $mod.Index }} : {{ $mod.Name }}
+	// ------------------------------------------------------------------------------------------------------- //
+
+	// Format index with leading zero (e.g., 1 -> 01)
+	pEM{{ printf "%02v" $mod.Index }}.Active						:= TRUE;
+	pEM{{ printf "%02v" $mod.Index }}.ID							:= {{ $mod.Index }};
+
+	// Configuration 
+	pEM{{ printf "%02v" $mod.Index }}.Cfg.IsIndependant				:= {{ if $mod.IsEM }}TRUE{{ else }}FALSE{{ end }};
+{{- end }}
+
+
+	// Set Cfg.IsIndependant PML according to modules configuration
+	FOR i:=0 TO MAX_MODULES DO
+		pPackML_EM[i].Cfg.IsIndependant	:= pModuleList[i].Cfg.IsIndependant;
+	END_FOR
+
+
+END_ACTION

@@ -26,30 +26,40 @@
     <nav class="px-3 space-y-0.5 flex-1 overflow-y-auto pb-10">
       <div class="mb-5 px-1 flex flex-col gap-2">
         <div class="flex gap-2">
-        <button
-          @click="handleImport"
-          class="flex-1 flex items-center justify-center gap-1.5 px-2 py-2 bg-white border border-gray-200 rounded-md text-xs font-bold text-gray-700 hover:bg-gray-50 hover:text-blue-600 hover:border-blue-200 transition-all shadow-sm"
-          title="Import Configuration"
-        >
-          <AppIcon name="upload" :size="16" />
-          IMPORT
-        </button>
-        <button
-          @click="handleExport"
-          class="flex-1 flex items-center justify-center gap-1.5 px-2 py-2 bg-blue-600 border border-transparent rounded-md text-xs font-bold text-white hover:bg-blue-700 transition-all shadow-sm"
-          title="Export Configuration"
-        >
-          <AppIcon name="download" :size="16" />
-          EXPORT
-        </button>
+          <button
+            @click="handleImport"
+            class="flex-1 flex items-center justify-center gap-1.5 px-2 py-2 bg-white border border-gray-200 rounded-md text-xs font-bold text-gray-700 hover:bg-gray-50 hover:text-blue-600 hover:border-blue-200 transition-all shadow-sm"
+            title="Import Configuration"
+          >
+            <AppIcon name="upload" :size="16" />
+            IMPORT
+          </button>
+          <button
+            @click="handleExport"
+            class="flex-1 flex items-center justify-center gap-1.5 px-2 py-2 bg-blue-600 border border-transparent rounded-md text-xs font-bold text-white hover:bg-blue-700 transition-all shadow-sm"
+            title="Export Configuration"
+          >
+            <AppIcon name="download" :size="16" />
+            EXPORT
+          </button>
         </div>
         <button
           @click="handleGenerate"
-          class="w-full flex items-center justify-center gap-1.5 px-2 py-2 bg-white border border-gray-200 rounded-md text-xs font-bold text-gray-700 hover:bg-gray-50 hover:text-emerald-600 hover:border-emerald-200 transition-all shadow-sm"
-          title="Générer les fichiers ST"
+          :disabled="hasGlobalErrors"
+          :class="[
+            'w-full flex items-center justify-center gap-1.5 px-2 py-2 rounded-md text-xs font-bold transition-all shadow-sm border',
+            hasGlobalErrors
+              ? 'bg-gray-100 border-gray-200 text-gray-400 cursor-not-allowed opacity-70'
+              : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50 hover:text-emerald-600 hover:border-emerald-200 cursor-pointer',
+          ]"
+          :title="
+            hasGlobalErrors
+              ? 'Please fix the errors before generating'
+              : 'Generate files'
+          "
         >
           <AppIcon name="file-code" :size="16" />
-          GÉNÉRER
+          GENERATE
         </button>
       </div>
 
@@ -138,6 +148,7 @@
           ></span>
         </a>
       </RouterLink>
+
       <RouterLink
         v-for="(def, key) in equipmentRegistry"
         :key="key"
@@ -153,7 +164,7 @@
             linkClass(isActive),
           ]"
         >
-          <AppIcon :name="def.menuIcon" :size="16" class="shrink-0" />
+          <AppIcon :name="def.menuIcon ?? 'box'" :size="16" class="shrink-0" />
           {{ def.label }}
           <span
             v-if="
@@ -188,7 +199,7 @@
             linkClass(isActive),
           ]"
         >
-          <AppIcon :name="def.menuIcon" :size="16" class="shrink-0" />
+          <AppIcon :name="def.menuIcon ?? 'file'" :size="16" class="shrink-0" />
           {{ def.label }}
           <span
             v-if="pageStores[key as keyof typeof pageStores]?.hasErrors.value"
@@ -233,7 +244,14 @@ import { computed } from "vue";
 import { NAV_SECTIONS } from "../config/navigation";
 import { toast } from "../composables/useToast";
 import AppIcon from "./AppIcon.vue";
-import { useConfigStore, equipmentRegistry, pageRegistry, getModuleErrors, PersistenceService, GenerationService } from "../core";
+import {
+  useConfigStore,
+  equipmentRegistry,
+  pageRegistry,
+  getModuleErrors,
+  PersistenceService,
+  GenerationService,
+} from "../core";
 
 const { equipment: equipmentStores, pages: pageStores } = useConfigStore();
 
@@ -264,6 +282,9 @@ const handleImport = async () => {
   }
 };
 
+/**
+ * Handles the logic for exporting configuration data.
+ */
 const handleExport = async () => {
   try {
     const result = await PersistenceService.exportConfig();
@@ -279,12 +300,23 @@ const handleExport = async () => {
   }
 };
 
+/**
+ * Handles the logic for generating ST files.
+ */
 const handleGenerate = async () => {
+  // Guard clause: prevent generation if errors exist
+  if (hasGlobalErrors.value) {
+    toast.error("Generation blocked", {
+      description: "Please fix configuration errors before generating.",
+    });
+    return;
+  }
+
   try {
     const result = await GenerationService.generate();
     if (result === "cancelled") return;
     toast.success("Generation complete", {
-      description: "ST files have been created.",
+      description: "Files have been generated successfully.",
     });
   } catch (err) {
     console.error("ST generation failed:", err);
@@ -309,7 +341,7 @@ const mustItem = (name: string) => {
     return {
       label: name,
       to: { name },
-      icon: "plus",
+      icon: "plus", // Default icon
     };
   }
   return item;
@@ -337,10 +369,33 @@ const runtimeItems = computed<NavItem[]>(() => [
   mustItem("messageBox"),
 ]);
 
-// Error checking across modules
+// Error checking specific to modules
 const hasModuleErrors = computed(() =>
   Object.values(getModuleErrors.value).some((v) => v),
 );
+
+// Calculate global error state across all domains to lock the generation button
+// Calculate global error state across all domains to lock the generation button
+const hasGlobalErrors = computed((): boolean => {
+  // 1. Check modules
+  if (hasModuleErrors.value) return true;
+
+  // 2. Check all equipment configurations using the registry keys
+  for (const key of Object.keys(equipmentRegistry.value)) {
+    if (equipmentStores[key as keyof typeof equipmentStores]?.hasErrors.value) {
+      return true;
+    }
+  }
+
+  // 3. Check all page configurations using the registry keys
+  for (const key of Object.keys(pageRegistry.value)) {
+    if (pageStores[key as keyof typeof pageStores]?.hasErrors.value) {
+      return true;
+    }
+  }
+
+  return false;
+});
 
 // Dynamic styling logic for active links
 const linkClass = (isActive: boolean) =>

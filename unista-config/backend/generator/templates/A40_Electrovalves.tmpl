@@ -1,0 +1,22 @@
+ACTION A40_Electrovalves: 
+
+	pConfiguratorDate.EV := '{{ .Date }}';
+
+{{ range $index, $ev := .AppData.Equipment.electrovalve }}
+	// --------------------------------------------------------------------------------------------------------------- //
+	//  EV {{ $ev.index }} : {{ $ev.name }}
+	// --------------------------------------------------------------------------------------------------------------- //
+	// Activation
+	pElectrovalveList[{{ $ev.index }}].Active                         := TRUE;
+	pElectrovalveList[{{ $ev.index }}].Enable                         := {{ if $ev.enable }}TRUE{{ else }}FALSE{{ end }};
+	pElectrovalveList[{{ $ev.index }}].ID                             := {{ $ev.index }};
+	pElectrovalveList[{{ $ev.index }}].ID_EM                          := {{ index $.ModuleMap $ev.emId }};
+	
+	// Configuration
+	pElectrovalveList[{{ $ev.index }}].Cfg.Task                       := 4;
+	pElectrovalveList[{{ $ev.index }}].Cfg.ElectrovalveType           := {{ $ev.cmdType }};
+	pElectrovalveList[{{ $ev.index }}].Cfg.Sensor                     := {{ $ev.sensorType }};
+	pElectrovalveList[{{ $ev.index }}].Cfg.CenterType                 := {{ $ev.centerType }};
+{{ end }}
+	
+END_ACTION

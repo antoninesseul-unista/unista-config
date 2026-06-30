@@ -1,0 +1,26 @@
+ACTION A80_AnaOutputs: 
+
+	pConfiguratorDate.AO							:= '{{ .Date }}';
+
+{{- range $ao := index .AppData.Equipment "analogOutput" }}
+	// --------------------------------------------------------------------------------------------------------------- //
+	//  AO {{ $ao.index }} : {{ $ao.name }}
+	// --------------------------------------------------------------------------------------------------------------- //
+	// Activation
+	pAnaOutputList[{{ $ao.index }}].Active								:= TRUE;
+	pAnaOutputList[{{ $ao.index }}].Enable								:= {{ if $ao.enable }}TRUE{{ else }}FALSE{{ end }};
+	pAnaOutputList[{{ $ao.index }}].ID									:= {{ $ao.index }};
+	pAnaOutputList[{{ $ao.index }}].ID_EM								:= {{ index $.ModuleMap $ao.emId }};
+
+	// Configuration
+	pAnaOutputList[{{ $ao.index }}].Cfg.Task							:= {{ if $ao.task }}{{ $ao.task }}{{ else }}4{{ end }};
+	pAnaOutputList[{{ $ao.index }}].Cfg.ForceAllowed					:= {{ if $ao.forceAllowed }}TRUE{{ else }}FALSE{{ end }};
+
+	// Linear calibration
+	pAnaOutputList[{{ $ao.index }}].Cfg.Linear.X1						:= {{ if $ao.calibX1 }}{{ $ao.calibX1 }}{{ else }}0{{ end }};
+	pAnaOutputList[{{ $ao.index }}].Cfg.Linear.Y1						:= {{ if $ao.calibY1 }}{{ $ao.calibY1 }}{{ else }}0{{ end }};
+	pAnaOutputList[{{ $ao.index }}].Cfg.Linear.X2						:= {{ if $ao.calibX2 }}{{ $ao.calibX2 }}{{ else }}100{{ end }};
+	pAnaOutputList[{{ $ao.index }}].Cfg.Linear.Y2						:= {{ if $ao.calibY2 }}{{ $ao.calibY2 }}{{ else }}32567{{ end }};
+{{- end }}
+
+END_ACTION

@@ -1,0 +1,21 @@
+ACTION A90_DirectMotors: 
+
+	pConfiguratorDate.DM						:= '{{ .Date }}';
+
+{{- range $dm := index .AppData.Equipment "directMotor" }}
+	// --------------------------------------------------------------------------------------------------------------- //
+	//  DM {{ $dm.index }} : {{ $dm.name }}
+	// --------------------------------------------------------------------------------------------------------------- //
+	// Activation
+	pDirectMotorList[{{ $dm.index }}].Active						:= TRUE;
+	pDirectMotorList[{{ $dm.index }}].Enable						:= {{ if $dm.enable }}TRUE{{ else }}FALSE{{ end }};
+	pDirectMotorList[{{ $dm.index }}].ID							:= {{ $dm.index }};
+	pDirectMotorList[{{ $dm.index }}].ID_EM							:= {{ index $.ModuleMap $dm.emId }};
+
+	// Configuration
+	pDirectMotorList[{{ $dm.index }}].Cfg.Task						:= {{ if $dm.task }}{{ $dm.task }}{{ else }}4{{ end }};
+	pDirectMotorList[{{ $dm.index }}].Cfg.MotorLevel				:= {{ if $dm.motorLevel }}TRUE{{ else }}FALSE{{ end }};
+	pDirectMotorList[{{ $dm.index }}].Cfg.MotorType					:= {{ $dm.motorType }};
+{{- end }}
+
+END_ACTION

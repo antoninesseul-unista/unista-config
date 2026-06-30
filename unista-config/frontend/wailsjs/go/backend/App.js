@@ -6,6 +6,10 @@ export function ConfirmClose() {
   return window['go']['backend']['App']['ConfirmClose']();
 }
 
+export function GenerateSTFiles(arg1) {
+  return window['go']['backend']['App']['GenerateSTFiles'](arg1);
+}
+
 export function Startup(arg1) {
   return window['go']['backend']['App']['Startup'](arg1);
 }

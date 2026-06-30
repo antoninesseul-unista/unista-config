@@ -4,15 +4,21 @@ import * as GoStorage from "../../wailsjs/go/services/StorageService";
 import { LoadData, SaveData } from "../../wailsjs/go/services/StorageService";
 import { models } from "../../wailsjs/go/models";
 import { hydrateAppState, replaceAppState, serializeAppState } from "./state";
+import { GenerateSTFiles } from "../../wailsjs/go/backend/App";
 
 export const CalculationService = {
-  parseRobotMask: (mask: string | undefined | null) => GoCalc.ParseRobotMask(mask || "0"),
-  isRobotSelected: (mask: number, robotIndex: number) => GoCalc.IsRobotSelected(mask, robotIndex),
-  toggleRobotMask: (mask: number, robotIndex: number) => GoCalc.ToggleRobotMask(mask, robotIndex),
+  parseRobotMask: (mask: string | undefined | null) =>
+    GoCalc.ParseRobotMask(mask || "0"),
+  isRobotSelected: (mask: number, robotIndex: number) =>
+    GoCalc.IsRobotSelected(mask, robotIndex),
+  toggleRobotMask: (mask: number, robotIndex: number) =>
+    GoCalc.ToggleRobotMask(mask, robotIndex),
   sanitizeVariableName: (raw: string) => GoCalc.SanitizeVariableName(raw),
   isValidIPAddress: (ip: string) => GoCalc.IsValidIPAddress(ip),
-  hasRobotVarIndexError: (param: models.Parameter, allParameters: models.Parameter[]) =>
-    GoCalc.HasRobotVarIndexError(param, allParameters),
+  hasRobotVarIndexError: (
+    param: models.Parameter,
+    allParameters: models.Parameter[],
+  ) => GoCalc.HasRobotVarIndexError(param, allParameters),
   validateRobotVarIndexForRobot: (
     param: models.Parameter,
     robotIndex: number,
@@ -33,8 +39,21 @@ export const ExportService = {
 /** ST file generation — implementation to be added later. */
 export const GenerationService = {
   async generate(): Promise<"generated" | "cancelled"> {
-    // TODO: generate ST files from current configuration
-    return "generated";
+    try {
+      const data = serializeAppState();
+
+      // Call the Go backend
+      const result = await GenerateSTFiles(data);
+
+      if (result !== "success") {
+        throw new Error(result);
+      }
+
+      return "generated";
+    } catch (e) {
+      console.error(e);
+      throw e;
+    }
   },
 };
 
