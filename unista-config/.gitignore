@@ -1,3 +1,76 @@
-build/bin
-node_modules
-frontend/dist
+# ─── OS ───────────────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+
+# ─── Go ───────────────────────────────────────────────────────────────────────
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+/bin/
+/vendor/
+coverage.out
+coverage.html
+*.coverprofile
+
+# App binary (wails build output name)
+/my-machine-app
+/my-machine-app.exe
+
+# ─── Wails ────────────────────────────────────────────────────────────────────
+build/bin/
+build/build/
+build/darwin/*.app
+build/windows/*.exe
+build/linux/
+
+# Wails dev hash (auto-regenerated)
+frontend/package.json.md5
+
+# ─── Frontend (Vue / Vite) ────────────────────────────────────────────────────
+node_modules/
+frontend/node_modules/
+frontend/dist/
+dist/
+dist-ssr/
+*.local
+
+# Vite / tooling caches
+.vite/
+.eslintcache
+.stylelintcache
+.parcel-cache
+.cache/
+.turbo/
+
+# ─── Logs ─────────────────────────────────────────────────────────────────────
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# ─── Environment & secrets ───────────────────────────────────────────────────
+.env
+.env.*
+!.env.example
+
+# ─── IDE ──────────────────────────────────────────────────────────────────────
+.idea/
+.vscode/*
+!.vscode/extensions.json
+
+# ─── Test & temp ──────────────────────────────────────────────────────────────
+tmp/
+temp/
+*.tmp
+*.bak
+
+# ─── User config exports (local dev only) ─────────────────────────────────────
+# Uncomment if you don't want to track downloaded configs in the repo:
+# *.json.export

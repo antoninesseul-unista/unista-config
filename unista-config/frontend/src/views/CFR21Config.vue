@@ -65,7 +65,7 @@
 </template>
 
 <script setup lang="ts">
-import { cfr21SettingsState as cfr21Settings } from "../store/cfr21";
+import { cfr21SettingsState as cfr21Settings } from "../core";
 
 /**
  * UI mapping dictionary for numeric inputs.

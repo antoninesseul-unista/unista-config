@@ -194,7 +194,7 @@
 </template>
 
 <script setup lang="ts">
-import { generalConfigState as config } from "../store/generalConfig";
+import { generalConfigState as config } from "../core";
 
 /**
  * Validates IPv4 address format.

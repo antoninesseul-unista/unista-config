@@ -18,50 +18,20 @@
           class="ml-auto text-gray-400 hover:text-gray-900 transition-colors"
           title="System Updates"
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            class="h-5 w-5"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
-            />
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-            />
-          </svg>
+          <AppIcon name="settings" :size="20" />
         </RouterLink>
       </div>
     </div>
 
     <nav class="px-3 space-y-0.5 flex-1 overflow-y-auto pb-10">
-      <div class="mb-5 px-1 flex gap-2">
+      <div class="mb-5 px-1 flex flex-col gap-2">
+        <div class="flex gap-2">
         <button
           @click="handleImport"
           class="flex-1 flex items-center justify-center gap-1.5 px-2 py-2 bg-white border border-gray-200 rounded-md text-xs font-bold text-gray-700 hover:bg-gray-50 hover:text-blue-600 hover:border-blue-200 transition-all shadow-sm"
           title="Import Configuration"
         >
-          <svg
-            class="w-4 h-4"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"
-            />
-          </svg>
+          <AppIcon name="upload" :size="16" />
           IMPORT
         </button>
         <button
@@ -69,20 +39,17 @@
           class="flex-1 flex items-center justify-center gap-1.5 px-2 py-2 bg-blue-600 border border-transparent rounded-md text-xs font-bold text-white hover:bg-blue-700 transition-all shadow-sm"
           title="Export Configuration"
         >
-          <svg
-            class="w-4 h-4"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
-            />
-          </svg>
+          <AppIcon name="download" :size="16" />
           EXPORT
+        </button>
+        </div>
+        <button
+          @click="handleGenerate"
+          class="w-full flex items-center justify-center gap-1.5 px-2 py-2 bg-white border border-gray-200 rounded-md text-xs font-bold text-gray-700 hover:bg-gray-50 hover:text-emerald-600 hover:border-emerald-200 transition-all shadow-sm"
+          title="Générer les fichiers ST"
+        >
+          <AppIcon name="file-code" :size="16" />
+          GÉNÉRER
         </button>
       </div>
 
@@ -107,14 +74,7 @@
             linkClass(isActive),
           ]"
         >
-          <svg
-            class="w-4 h-4 shrink-0"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <g v-html="item.icon"></g>
-          </svg>
+          <AppIcon :name="item.icon" :size="16" class="shrink-0" />
           {{ item.label }}
         </a>
       </RouterLink>
@@ -142,14 +102,7 @@
             linkClass(isActive),
           ]"
         >
-          <svg
-            class="w-4 h-4 shrink-0"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <g v-html="item.icon"></g>
-          </svg>
+          <AppIcon :name="item.icon" :size="16" class="shrink-0" />
           {{ item.label }}
         </a>
       </RouterLink>
@@ -177,14 +130,7 @@
             linkClass(isActive),
           ]"
         >
-          <svg
-            class="w-4 h-4 shrink-0"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <g v-html="item.icon"></g>
-          </svg>
+          <AppIcon :name="item.icon" :size="16" class="shrink-0" />
           {{ item.label }}
           <span
             v-if="item.showsModuleError && hasModuleErrors"
@@ -193,7 +139,7 @@
         </a>
       </RouterLink>
       <RouterLink
-        v-for="(def, key) in EQUIPMENT_REGISTRY"
+        v-for="(def, key) in equipmentRegistry"
         :key="key"
         :to="{ name: 'equipment', params: { type: key as string } }"
         custom
@@ -207,14 +153,7 @@
             linkClass(isActive),
           ]"
         >
-          <svg
-            class="w-4 h-4 shrink-0"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <g v-html="def.menuIcon"></g>
-          </svg>
+          <AppIcon :name="def.menuIcon" :size="16" class="shrink-0" />
           {{ def.label }}
           <span
             v-if="
@@ -235,7 +174,7 @@
         >
       </div>
       <RouterLink
-        v-for="(def, key) in PAGE_REGISTRY"
+        v-for="(def, key) in pageRegistry"
         :key="key"
         :to="{ name: 'page', params: { type: key as string } }"
         custom
@@ -249,14 +188,7 @@
             linkClass(isActive),
           ]"
         >
-          <svg
-            class="w-4 h-4 shrink-0"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <g v-html="def.menuIcon"></g>
-          </svg>
+          <AppIcon :name="def.menuIcon" :size="16" class="shrink-0" />
           {{ def.label }}
           <span
             v-if="pageStores[key as keyof typeof pageStores]?.hasErrors.value"
@@ -288,14 +220,7 @@
             linkClass(isActive),
           ]"
         >
-          <svg
-            class="w-4 h-4 shrink-0"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <g v-html="item.icon"></g>
-          </svg>
+          <AppIcon :name="item.icon" :size="16" class="shrink-0" />
           {{ item.label }}
         </a>
       </RouterLink>
@@ -305,13 +230,12 @@
 
 <script setup lang="ts">
 import { computed } from "vue";
-import { EQUIPMENT_REGISTRY } from "../config/equipment";
 import { NAV_SECTIONS } from "../config/navigation";
-import { PAGE_REGISTRY } from "../config/pages";
-import { equipmentStores } from "../store/equipment";
-import { getModuleErrors } from "../store/modules";
-import { pageStores } from "../store/pages";
-import { ExportEVToST } from "../../wailsjs/go/backend/App";
+import { toast } from "../composables/useToast";
+import AppIcon from "./AppIcon.vue";
+import { useConfigStore, equipmentRegistry, pageRegistry, getModuleErrors, PersistenceService, GenerationService } from "../core";
+
+const { equipment: equipmentStores, pages: pageStores } = useConfigStore();
 
 /**
  * Type definitions for internal navigation structures.
@@ -326,27 +250,46 @@ type NavItem = {
 /**
  * Handles the logic for importing configuration data.
  */
-const handleImport = () => {
-  // TODO: Implement the connection to the Wails backend import service
-  console.log("Import button clicked");
+const handleImport = async () => {
+  try {
+    const result = await PersistenceService.importConfig();
+    if (result === "cancelled") return;
+    toast.success("Configuration imported", {
+      description: "Application state has been restored.",
+    });
+  } catch (err) {
+    console.error("Import failed:", err);
+    const message = err instanceof Error ? err.message : String(err);
+    toast.error("Import failed", { description: message });
+  }
 };
 
-/**
- * Handles the logic for exporting configuration data.
- */
 const handleExport = async () => {
   try {
-    // 1. Récupère les données depuis ton store
-    const evData = equipmentStores.electrovalve.list.value;
-
-    // 2. Appel de la fonction Go via le pont Wails
-    // On convertit en 'any' pour éviter les conflits de types entre Vue et Go
-    await ExportEVToST(evData as any);
-
-    alert("Configuration successfully exported to machine_parameters.st !");
+    const result = await PersistenceService.exportConfig();
+    if (result === "exported") {
+      toast.success("Configuration exported", {
+        description: "JSON file has been saved.",
+      });
+    }
   } catch (err) {
     console.error("Export failed:", err);
-    alert("An error occurred while exporting the file.");
+    const message = err instanceof Error ? err.message : String(err);
+    toast.error("Export failed", { description: message });
+  }
+};
+
+const handleGenerate = async () => {
+  try {
+    const result = await GenerationService.generate();
+    if (result === "cancelled") return;
+    toast.success("Generation complete", {
+      description: "ST files have been created.",
+    });
+  } catch (err) {
+    console.error("ST generation failed:", err);
+    const message = err instanceof Error ? err.message : String(err);
+    toast.error("Generation failed", { description: message });
   }
 };
 
@@ -366,7 +309,7 @@ const mustItem = (name: string) => {
     return {
       label: name,
       to: { name },
-      icon: `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />`,
+      icon: "plus",
     };
   }
   return item;

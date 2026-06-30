@@ -69,14 +69,7 @@
               v-model="category.isOpen"
             >
               <template #icon>
-                <svg
-                  :class="['w-3.5 h-3.5', category.color]"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <g v-html="category.icon"></g>
-                </svg>
+                <AppIcon :name="category.icon" :size="14" :class="category.color" />
               </template>
 
               <template #badge>
@@ -133,8 +126,9 @@
 
 <script setup lang="ts">
 import CollapsibleSection from "../components/CollapsibleSection.vue";
+import AppIcon from "../components/AppIcon.vue";
 import {
   rolesState as roles,
   permissionMatrixState as permissionMatrix,
-} from "../store/roles";
+} from "../core";
 </script>

@@ -12,11 +12,7 @@
       ]"
     >
       <!-- Clickable Name: Opens the sidebar for advanced editing -->
-      <span
-        class="truncate flex-1 cursor-pointer py-0.5 select-none"
-        :title="p.name"
-        @click="$emit('open', i)"
-      >
+      <span class="truncate flex-1 cursor-pointer py-0.5 select-none" :title="p.name" @click="$emit('open', i)">
         {{ p.name }}
       </span>
 
@@ -25,9 +21,7 @@
         @click.stop="p.actif = !p.actif"
         :class="[
           'w-2 h-2 rounded-full cursor-pointer transition-all duration-300 shrink-0 ml-2',
-          p.actif
-            ? 'bg-green-500 shadow-[0_0_5px_rgba(34,197,94,0.8)] scale-110'
-            : 'bg-gray-300 hover:bg-gray-400',
+          p.actif ? 'bg-green-500 shadow-[0_0_5px_rgba(34,197,94,0.8)] scale-110' : 'bg-gray-300 hover:bg-gray-400',
         ]"
         title="Toggle Active"
       />
@@ -36,7 +30,7 @@
 </template>
 
 <script setup lang="ts">
-import type { Parameter } from "../types";
+import { models } from "../../wailsjs/go/models";
 
 /**
  * ParameterGrid
@@ -49,7 +43,7 @@ import type { Parameter } from "../types";
  */
 withDefaults(
   defineProps<{
-    params: Parameter[];
+    params: models.Parameter[];
     cols?: 1 | 2;
   }>(),
   { cols: 1 },

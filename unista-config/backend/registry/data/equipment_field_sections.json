@@ -1,0 +1,22 @@
+[
+  {
+    "label": "Configuration",
+    "fieldsKey": "configFields",
+    "iconKey": "configIcon",
+    "uiKey": "showConfiguration",
+    "filterVisible": true
+  },
+  {
+    "label": "Controller",
+    "fieldsKey": "controllerFields",
+    "iconKey": "controllerIcon",
+    "uiKey": "showController",
+    "filterVisible": true
+  },
+  {
+    "label": "Process",
+    "fieldsKey": "processFields",
+    "iconKey": "processIcon",
+    "uiKey": "showProcess"
+  }
+]

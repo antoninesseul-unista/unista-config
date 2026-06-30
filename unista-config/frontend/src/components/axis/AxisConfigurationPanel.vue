@@ -2,19 +2,7 @@
   <div class="flex flex-col gap-3">
     <CollapsibleSection label="Controller" v-model="uiState.showController">
       <template #icon>
-        <svg
-          class="w-3.5 h-3.5 text-gray-500"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"
-          />
-        </svg>
+        <AppIcon name="cpu" :size="14" class="text-gray-500" />
       </template>
 
       <template
@@ -180,25 +168,7 @@
       v-model="uiState.showConfiguration"
     >
       <template #icon>
-        <svg
-          class="w-3.5 h-3.5 text-gray-500"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
-          />
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-          />
-        </svg>
+        <AppIcon name="settings" :size="14" class="text-gray-500" />
       </template>
 
       <template
@@ -335,19 +305,7 @@
 
     <CollapsibleSection label="Limits" v-model="uiState.showLimits">
       <template #icon>
-        <svg
-          class="w-3.5 h-3.5 text-gray-500"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"
-          />
-        </svg>
+        <AppIcon name="ruler" :size="14" class="text-gray-500" />
       </template>
 
       <template
@@ -671,19 +629,7 @@
 
     <CollapsibleSection label="Default Values" v-model="uiState.showDefaults">
       <template #icon>
-        <svg
-          class="w-3.5 h-3.5 text-gray-500"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M13 10V3L4 14h7v7l9-11h-7z"
-          />
-        </svg>
+        <AppIcon name="list" :size="14" class="text-gray-500" />
       </template>
 
       <template
@@ -827,19 +773,7 @@
 
     <CollapsibleSection label="Reduction" v-model="uiState.showReduction">
       <template #icon>
-        <svg
-          class="w-3.5 h-3.5 text-gray-500"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"
-          />
-        </svg>
+        <AppIcon name="percent" :size="14" class="text-gray-500" />
       </template>
 
       <template
@@ -940,19 +874,7 @@
       v-model="uiState.showHoming"
     >
       <template #icon>
-        <svg
-          class="w-3.5 h-3.5 text-gray-500"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
-          />
-        </svg>
+        <AppIcon name="home" :size="14" class="text-gray-500" />
       </template>
 
       <template
@@ -1249,19 +1171,7 @@
       v-model="uiState.showAutoTune"
     >
       <template #icon>
-        <svg
-          class="w-3.5 h-3.5 text-gray-500"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"
-          />
-        </svg>
+        <AppIcon name="sparkles" :size="14" class="text-gray-500" />
       </template>
 
       <template
@@ -1380,19 +1290,7 @@
       v-model="uiState.showInverter"
     >
       <template #icon>
-        <svg
-          class="w-3.5 h-3.5 text-gray-500"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M3 12h4l3-9 5 18 3-9h4"
-          />
-        </svg>
+        <AppIcon name="plug-zap" :size="14" class="text-gray-500" />
       </template>
 
       <template
@@ -1606,6 +1504,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted, reactive } from "vue";
+import AppIcon from "../AppIcon.vue";
 import CollapsibleSection from "../../components/CollapsibleSection.vue";
 import { AxisRuleProvider } from "../../domain/axis/axisRuleProvider";
 import { AxisSanitizer } from "../../domain/axis/axisSanitizer";

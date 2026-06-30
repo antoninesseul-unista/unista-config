@@ -16,20 +16,12 @@
         </div>
       </div>
 
-      <svg
-        class="w-3.5 h-3.5 text-gray-400 transition-transform duration-200 shrink-0"
+      <AppIcon
+        name="chevron-down"
+        :size="14"
+        class="text-gray-400 transition-transform duration-200 shrink-0"
         :class="open ? 'rotate-180' : ''"
-        fill="none"
-        stroke="currentColor"
-        viewBox="0 0 24 24"
-      >
-        <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          stroke-width="2"
-          d="M19 9l-7 7-7-7"
-        />
-      </svg>
+      />
     </button>
 
     <transition
@@ -52,11 +44,8 @@
 
 <script setup lang="ts">
 import { computed } from "vue";
+import AppIcon from "./AppIcon.vue";
 
-/**
- * CollapsibleSection
- * A reusable UI component for collapsible content areas.
- */
 const props = defineProps<{
   label: string;
   modelValue: boolean;
@@ -64,16 +53,12 @@ const props = defineProps<{
 
 const emit = defineEmits<{ "update:modelValue": [value: boolean] }>();
 
-// Define slots for strict type checking
 defineSlots<{
-  icon?: () => any;
-  badge?: () => any;
-  default?: () => any;
+  icon?: () => unknown;
+  badge?: () => unknown;
+  default?: () => unknown;
 }>();
 
-/**
- * Two-way binding wrapper for the v-model state.
- */
 const open = computed({
   get: () => props.modelValue,
   set: (v) => emit("update:modelValue", v),

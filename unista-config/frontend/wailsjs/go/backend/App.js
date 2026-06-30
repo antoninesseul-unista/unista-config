@@ -6,14 +6,6 @@ export function ConfirmClose() {
   return window['go']['backend']['App']['ConfirmClose']();
 }
 
-export function ExportEVToST(arg1) {
-  return window['go']['backend']['App']['ExportEVToST'](arg1);
-}
-
-export function LoadData() {
-  return window['go']['backend']['App']['LoadData']();
-}
-
-export function SaveData(arg1) {
-  return window['go']['backend']['App']['SaveData'](arg1);
+export function Startup(arg1) {
+  return window['go']['backend']['App']['Startup'](arg1);
 }

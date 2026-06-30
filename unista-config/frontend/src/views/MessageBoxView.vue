@@ -47,19 +47,7 @@
             v-model="(msgBox.ui as any)[sec.uiKey]"
           >
             <template #icon>
-              <svg
-                :class="['w-3.5 h-3.5', sec.color]"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M4 6h16M4 12h16M4 18h7"
-                />
-              </svg>
+              <AppIcon :name="sec.icon" :size="14" :class="sec.color" />
             </template>
             <!-- Direct integration of the Translations & Info component -->
             <TranslationsFields :item="(msgBox as any)[sec.key]" />
@@ -72,8 +60,9 @@
 
 <script setup lang="ts">
 import CollapsibleSection from "../components/CollapsibleSection.vue";
+import AppIcon from "../components/AppIcon.vue";
 import TranslationsFields from "../components/TranslationsFields.vue";
-import { messageBoxes } from "../store/messageBox";
+import { messageBoxes } from "../core";
 
 /**
  * Configuration array to loop through the 5 fields dynamically.
@@ -85,20 +74,23 @@ const SECTIONS = [
     key: "title",
     uiKey: "showTitle",
     color: "text-purple-600",
+    icon: "type",
   },
-  { label: "Line 1", key: "line1", uiKey: "showLine1", color: "text-blue-500" },
-  { label: "Line 2", key: "line2", uiKey: "showLine2", color: "text-blue-500" },
+  { label: "Line 1", key: "line1", uiKey: "showLine1", color: "text-blue-500", icon: "align-left" },
+  { label: "Line 2", key: "line2", uiKey: "showLine2", color: "text-blue-500", icon: "align-left" },
   {
     label: "Button Left",
     key: "btnLeft",
     uiKey: "showBtnLeft",
     color: "text-teal-500",
+    icon: "square",
   },
   {
     label: "Button Right",
     key: "btnRight",
     uiKey: "showBtnRight",
     color: "text-teal-500",
+    icon: "square",
   },
 ] as const;
 </script>

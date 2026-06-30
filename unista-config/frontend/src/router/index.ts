@@ -1,6 +1,5 @@
 import { createRouter, createWebHashHistory } from "vue-router";
-import { EQUIPMENT_REGISTRY } from "../config/equipment";
-import { PAGE_REGISTRY } from "../config/pages";
+import { equipmentRegistry, pageRegistry } from "../core/registry";
 
 import CFR21Config from "../views/CFR21Config.vue";
 import CountersView from "../views/CountersView.vue";
@@ -107,7 +106,7 @@ export const router = createRouter({
       component: GenericPageView,
       props: (route) => ({ type: route.params.type }),
       beforeEnter: (to) =>
-        PAGE_REGISTRY[String(to.params.type)] ? true : "/general",
+        pageRegistry.value[String(to.params.type)] ? true : "/general",
       meta: { title: "Page" },
     },
     {
@@ -116,7 +115,7 @@ export const router = createRouter({
       component: GenericEquipmentView,
       props: (route) => ({ type: route.params.type }),
       beforeEnter: (to) =>
-        EQUIPMENT_REGISTRY[String(to.params.type)] ? true : "/general",
+        equipmentRegistry.value[String(to.params.type)] ? true : "/general",
       meta: { title: "Equipment" },
     },
 

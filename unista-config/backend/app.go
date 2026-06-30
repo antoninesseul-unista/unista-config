@@ -7,38 +7,35 @@ import (
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
-// App struct containing the Wails context and close state flag
+// App manages the application lifecycle and Wails context.
 type App struct {
 	ctx      context.Context
-	canClose bool // Flag to allow closing only after frontend confirms
+	canClose bool
 }
 
-// NewApp creates a new App application struct
+// NewApp creates a new App struct.
 func NewApp() *App {
 	return &App{
 		canClose: false,
 	}
 }
 
-// Startup is called when the app starts. The context is saved.
+// Startup is called at application startup.
 func (a *App) Startup(ctx context.Context) {
 	a.ctx = ctx
 }
 
-// BeforeClose is a Wails hook triggered when the user tries to close the window.
-// Returning true prevents the application from closing immediately.
+// BeforeClose intercepts the close event to ensure data is saved.
 func (a *App) BeforeClose(ctx context.Context) bool {
-	// If the frontend has already confirmed the save, allow normal closing
 	if a.canClose {
 		return false
 	}
 
-	// Prevent immediate closing and ask the frontend to save its state
 	runtime.EventsEmit(ctx, "request-save-and-close")
 	return true
 }
 
-// ConfirmClose is bound to the frontend. It is called once the save is complete.
+// ConfirmClose allows the application to exit safely.
 func (a *App) ConfirmClose() {
 	a.canClose = true
 	runtime.Quit(a.ctx)

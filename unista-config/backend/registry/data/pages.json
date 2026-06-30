@@ -1,0 +1,30 @@
+{
+  "product": {
+    "type": "product",
+    "label": "Product",
+    "prefix": "PRD",
+    "maxSlots": 8,
+    "menuIcon": "box"
+  },
+  "process": {
+    "type": "process",
+    "label": "Process",
+    "prefix": "PRC",
+    "maxSlots": 8,
+    "menuIcon": "cog"
+  },
+  "setting": {
+    "type": "setting",
+    "label": "Setting",
+    "prefix": "SET",
+    "maxSlots": 8,
+    "menuIcon": "adjustments"
+  },
+  "info": {
+    "type": "info",
+    "label": "Info",
+    "prefix": "INF",
+    "maxSlots": 8,
+    "menuIcon": "info"
+  }
+}

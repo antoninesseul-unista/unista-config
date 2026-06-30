@@ -167,5 +167,5 @@
 
 <script setup lang="ts">
 // Core imports for system constants management
-import { architectureLimits, faultTypes } from "../store/systemConstants";
+import { architectureLimits, faultTypes } from "../core";
 </script>

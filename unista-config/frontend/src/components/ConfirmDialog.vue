@@ -20,19 +20,7 @@
             <div
               class="w-8 h-8 rounded-lg bg-red-100 border border-red-200 flex items-center justify-center shrink-0"
             >
-              <svg
-                class="w-4 h-4 text-red-600"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                />
-              </svg>
+              <AppIcon name="trash-2" :size="16" class="text-red-600" />
             </div>
             <div>
               <p class="text-sm font-bold text-red-900 uppercase tracking-wide">
@@ -67,19 +55,7 @@
               @click="onConfirm"
               class="px-3 py-1.5 rounded-md text-xs font-bold text-white bg-red-500 hover:bg-red-600 transition-colors flex items-center gap-1.5"
             >
-              <svg
-                class="w-3.5 h-3.5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                />
-              </svg>
+              <AppIcon name="trash-2" :size="14" />
               Delete
             </button>
           </div>
@@ -90,6 +66,8 @@
 </template>
 
 <script setup lang="ts">
+import AppIcon from "./AppIcon.vue";
+
 defineProps<{
   modelValue: boolean;
   label?: string;

@@ -1,34 +1,16 @@
 <template>
-  <div
-    class="fixed inset-0 z-100 flex items-center justify-center bg-gray-900/40 backdrop-blur-sm p-8 font-sans"
-  >
+  <div class="fixed inset-0 z-100 flex items-center justify-center bg-gray-900/40 backdrop-blur-sm p-8 font-sans">
     <div
       class="bg-white rounded-xl shadow-2xl w-full max-w-7xl h-full max-h-[90vh] flex flex-col overflow-hidden border border-gray-200"
     >
       <!-- Header -->
-      <div
-        class="px-6 py-4 border-b border-gray-200 bg-gray-50 flex items-center justify-between shrink-0"
-      >
+      <div class="px-6 py-4 border-b border-gray-200 bg-gray-50 flex items-center justify-between shrink-0">
         <div>
           <h2 class="text-lg font-bold text-gray-800 flex items-center gap-2">
-            <svg
-              class="w-5 h-5 text-teal-600"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M4 6h16M4 10h16M4 14h16M4 18h16"
-              />
-            </svg>
+            <AppIcon name="list" :size="20" class="text-teal-600" />
             Steps Configuration
           </h2>
-          <p
-            class="text-xs text-gray-500 mt-1 uppercase tracking-wider font-bold"
-          >
+          <p class="text-xs text-gray-500 mt-1 uppercase tracking-wider font-bold">
             {{ contextName }}
           </p>
         </div>
@@ -37,27 +19,13 @@
           class="text-gray-400 hover:text-red-500 p-2 rounded-md hover:bg-red-50 transition-colors"
           title="Close (Esc)"
         >
-          <svg
-            class="w-6 h-6"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M6 18L18 6M6 6l12 12"
-            />
-          </svg>
+          <AppIcon name="x" :size="24" />
         </button>
       </div>
 
       <!-- Table Body -->
       <div class="flex-1 overflow-auto bg-gray-50/50 p-6">
-        <div
-          class="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden"
-        >
+        <div class="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
           <table class="w-full text-left border-collapse">
             <thead>
               <tr>
@@ -97,9 +65,7 @@
                 >
                   Reserve 2
                 </th>
-                <th
-                  class="px-3 py-3 bg-gray-100 border-b border-gray-200 w-10"
-                ></th>
+                <th class="px-3 py-3 bg-gray-100 border-b border-gray-200 w-10"></th>
               </tr>
             </thead>
             <tbody>
@@ -165,19 +131,7 @@
                     class="text-gray-300 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100"
                     title="Remove Step"
                   >
-                    <svg
-                      class="w-4 h-4"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                      />
-                    </svg>
+                    <AppIcon name="trash-2" :size="16" />
                   </button>
                 </td>
               </tr>
@@ -190,19 +144,7 @@
           @click="addStep"
           class="mt-4 flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-md text-xs font-bold text-gray-600 hover:bg-gray-50 hover:text-blue-600 transition-colors shadow-sm"
         >
-          <svg
-            class="w-4 h-4"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M12 4v16m8-8H4"
-            />
-          </svg>
+          <AppIcon name="plus" :size="16" />
           Add Custom Step
         </button>
       </div>
@@ -212,10 +154,11 @@
 
 <script setup lang="ts">
 import { onMounted, onUnmounted } from "vue";
-import type { CycleStep } from "../types";
+import AppIcon from "./AppIcon.vue";
+import { models } from "../../wailsjs/go/models";
 
 const props = defineProps<{
-  steps: CycleStep[];
+  steps: models.CycleStep[];
   contextName: string;
 }>();
 
@@ -230,10 +173,7 @@ const sortSteps = () => {
 };
 
 const addStep = () => {
-  const nextId =
-    props.steps.length > 0
-      ? Math.max(...props.steps.map((s) => s.stepId)) + 10
-      : 10;
+  const nextId = props.steps.length > 0 ? Math.max(...props.steps.map((s) => s.stepId)) + 10 : 10;
   props.steps.push({
     stepId: nextId,
     commentFr: "",

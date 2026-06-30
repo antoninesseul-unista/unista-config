@@ -1,0 +1,1076 @@
+{
+  "electrovalve": {
+    "type": "electrovalve",
+    "label": "Electrovalve",
+    "prefix": "EV",
+    "hasEmLink": true,
+    "hasParameters": true,
+    "menuIcon": "cylinder",
+    "configIcon": "settings",
+    "configFields": [
+      {
+        "label": "Cmd type",
+        "field": "cmdType",
+        "type": "select",
+        "options": [
+          "Monostable",
+          "Bistable"
+        ]
+      },
+      {
+        "label": "Center type",
+        "field": "centerType",
+        "type": "select",
+        "options": [
+          "Open",
+          "Closed"
+        ]
+      },
+      {
+        "label": "Sensor type",
+        "field": "sensorType",
+        "type": "select",
+        "options": [
+          "NoSensor",
+          "FwdSensor",
+          "BwdSensor",
+          "AllSensors"
+        ]
+      }
+    ],
+    "parameterFields": [
+      {
+        "label": "Fwd Delay",
+        "field": "evFwdDelay",
+        "type": "boolean",
+        "defaultValue": true
+      },
+      {
+        "label": "Bwd Delay",
+        "field": "evBwdDelay",
+        "type": "boolean",
+        "defaultValue": true
+      },
+      {
+        "label": "Fwd Anticipation",
+        "field": "evFwdAnticipation",
+        "type": "boolean",
+        "defaultValue": false
+      },
+      {
+        "label": "Bwd Anticipation",
+        "field": "evBwdAnticipation",
+        "type": "boolean",
+        "defaultValue": false
+      }
+    ],
+    "sidebarCapabilities": {
+      "showName": true,
+      "showTranslations": true,
+      "showReserves": true,
+      "showRobot": true
+    }
+  },
+  "vacuum": {
+    "type": "vacuum",
+    "label": "Vacuum",
+    "prefix": "VAC",
+    "hasEmLink": true,
+    "hasParameters": true,
+    "menuIcon": "air-vent",
+    "configIcon": "settings",
+    "configFields": [
+      {
+        "label": "Cmd type",
+        "field": "cmdType",
+        "type": "select",
+        "options": [
+          "VacuumOnly",
+          "VacuumBlow",
+          "VacuumBlowPulse"
+        ]
+      },
+      {
+        "label": "Switch type",
+        "field": "switchType",
+        "type": "select",
+        "options": [
+          "NoVacuumSwitch",
+          "SimpleVacuumSwitch",
+          "DelayedVacuumSwitch"
+        ]
+      }
+    ],
+    "parameterFields": [
+      {
+        "label": "Filter",
+        "field": "filter",
+        "type": "boolean",
+        "defaultValue": false
+      },
+      {
+        "label": "Delay",
+        "field": "delay",
+        "type": "boolean",
+        "defaultValue": true
+      },
+      {
+        "label": "Timeout",
+        "field": "timeout",
+        "type": "boolean",
+        "defaultValue": true
+      },
+      {
+        "label": "Blow Duration",
+        "field": "blowDuration",
+        "type": "boolean",
+        "defaultValue": true
+      },
+      {
+        "label": "Vacuum Anticipation",
+        "field": "vacuumAnticipation",
+        "type": "boolean",
+        "defaultValue": false
+      },
+      {
+        "label": "Blow Anticipation",
+        "field": "blowAnticipation",
+        "type": "boolean",
+        "defaultValue": false
+      },
+      {
+        "label": "Vacuum Stop Anticipation",
+        "field": "vacuumStopAnticipation",
+        "type": "boolean",
+        "defaultValue": false
+      }
+    ],
+    "sidebarCapabilities": {
+      "showName": false,
+      "showTranslations": false,
+      "showReserves": false,
+      "showRobot": true
+    }
+  },
+  "digitalInput": {
+    "type": "digitalInput",
+    "label": "Digital Input",
+    "prefix": "DI",
+    "hasEmLink": true,
+    "hasParameters": true,
+    "menuIcon": "arrow-down-to-line",
+    "configIcon": "settings",
+    "configFields": [
+      {
+        "label": "Activity level",
+        "field": "activityLevel",
+        "type": "boolean",
+        "defaultValue": true
+      },
+      {
+        "label": "Simulation authorization",
+        "field": "simulationAuthorization",
+        "type": "boolean",
+        "defaultValue": true
+      }
+    ],
+    "parameterFields": [
+      {
+        "label": "Filter ON",
+        "field": "diFilterOn",
+        "type": "boolean",
+        "defaultValue": true
+      },
+      {
+        "label": "Filter OFF",
+        "field": "diFilterOff",
+        "type": "boolean",
+        "defaultValue": true
+      },
+      {
+        "label": "Timeout ON",
+        "field": "diTimeoutOn",
+        "type": "boolean",
+        "defaultValue": false
+      },
+      {
+        "label": "Timeout OFF",
+        "field": "diTimeoutOff",
+        "type": "boolean",
+        "defaultValue": false
+      }
+    ],
+    "sidebarCapabilities": {
+      "showName": false,
+      "showTranslations": false,
+      "showReserves": false,
+      "showRobot": true
+    }
+  },
+  "analogInput": {
+    "type": "analogInput",
+    "label": "Analog Input",
+    "prefix": "AI",
+    "hasEmLink": true,
+    "hasParameters": true,
+    "menuIcon": "waves",
+    "configIcon": "settings",
+    "configFields": [
+      {
+        "label": "Simulation authorization",
+        "field": "simulationAuthorization",
+        "type": "boolean",
+        "defaultValue": true
+      },
+      {
+        "label": "X1",
+        "field": "x1",
+        "type": "number"
+      },
+      {
+        "label": "Y1",
+        "field": "y1",
+        "type": "number"
+      },
+      {
+        "label": "X2",
+        "field": "x2",
+        "type": "number"
+      },
+      {
+        "label": "Y2",
+        "field": "y2",
+        "type": "number"
+      }
+    ],
+    "parameterFields": [
+      {
+        "label": "Low Threshold",
+        "field": "lowThreshold",
+        "type": "boolean",
+        "defaultValue": true
+      },
+      {
+        "label": "High Threshold",
+        "field": "highThreshold",
+        "type": "boolean",
+        "defaultValue": true
+      },
+      {
+        "label": "Low Alarm Level",
+        "field": "lowAlarmLevel",
+        "type": "boolean",
+        "defaultValue": true
+      },
+      {
+        "label": "Low Fault Level",
+        "field": "lowFaultLevel",
+        "type": "boolean",
+        "defaultValue": false
+      },
+      {
+        "label": "High Alarm Level",
+        "field": "highAlarmLevel",
+        "type": "boolean",
+        "defaultValue": true
+      },
+      {
+        "label": "High Fault Level",
+        "field": "highFaultLevel",
+        "type": "boolean",
+        "defaultValue": false
+      }
+    ],
+    "sidebarCapabilities": {
+      "showName": false,
+      "showTranslations": false,
+      "showReserves": false,
+      "showRobot": false
+    }
+  },
+  "analogOutput": {
+    "type": "analogOutput",
+    "label": "Analog Output",
+    "prefix": "AO",
+    "hasEmLink": true,
+    "hasParameters": true,
+    "menuIcon": "arrow-up-from-line",
+    "configIcon": "settings",
+    "configFields": [
+      {
+        "label": "Simulation authorization",
+        "field": "simulationAuthorization",
+        "type": "boolean",
+        "defaultValue": true
+      },
+      {
+        "label": "X1",
+        "field": "x1",
+        "type": "number"
+      },
+      {
+        "label": "Y1",
+        "field": "y1",
+        "type": "number"
+      },
+      {
+        "label": "X2",
+        "field": "x2",
+        "type": "number"
+      },
+      {
+        "label": "Y2",
+        "field": "y2",
+        "type": "number"
+      }
+    ],
+    "parameterFields": [
+      {
+        "label": "Minimum Threshold",
+        "field": "minimumThreshold",
+        "type": "boolean",
+        "defaultValue": true
+      },
+      {
+        "label": "Maximum Threshold",
+        "field": "maximumThreshold",
+        "type": "boolean",
+        "defaultValue": true
+      },
+      {
+        "label": "Threshold 1",
+        "field": "threshold1",
+        "type": "boolean",
+        "defaultValue": true
+      },
+      {
+        "label": "Threshold 2",
+        "field": "threshold2",
+        "type": "boolean",
+        "defaultValue": false
+      },
+      {
+        "label": "Threshold 3",
+        "field": "threshold3",
+        "type": "boolean",
+        "defaultValue": false
+      },
+      {
+        "label": "Threshold 4",
+        "field": "threshold4",
+        "type": "boolean",
+        "defaultValue": false
+      },
+      {
+        "label": "Threshold 5",
+        "field": "threshold5",
+        "type": "boolean",
+        "defaultValue": false
+      },
+      {
+        "label": "Threshold 6",
+        "field": "threshold6",
+        "type": "boolean",
+        "defaultValue": false
+      }
+    ],
+    "sidebarCapabilities": {
+      "showName": false,
+      "showTranslations": false,
+      "showReserves": false,
+      "showRobot": false
+    }
+  },
+  "directMotor": {
+    "type": "directMotor",
+    "label": "Direct Motor",
+    "prefix": "DM",
+    "hasEmLink": true,
+    "hasParameters": false,
+    "menuIcon": "cog",
+    "configIcon": "settings",
+    "configFields": [
+      {
+        "label": "Level OK",
+        "field": "levelOk",
+        "type": "boolean",
+        "defaultValue": false
+      },
+      {
+        "label": "Motor Type",
+        "field": "motorType",
+        "type": "select",
+        "options": [
+          "OnlyFwd",
+          "OnlyBwd",
+          "TwoSens"
+        ]
+      },
+      {
+        "label": "Command hold time (s)",
+        "field": "cmdHoldTime",
+        "type": "number"
+      }
+    ],
+    "parameterFields": [],
+    "sidebarCapabilities": {
+      "showName": false,
+      "showTranslations": false,
+      "showReserves": false,
+      "showRobot": false
+    }
+  },
+  "axis": {
+    "type": "axis",
+    "label": "Axis",
+    "prefix": "AX",
+    "hasEmLink": true,
+    "hasParameters": false,
+    "allowsFastCycle": true,
+    "customPanel": "axis",
+    "menuIcon": "axis-3d",
+    "configIcon": "settings",
+    "configFields": [
+      {
+        "label": "Controller Type",
+        "field": "controllerType",
+        "type": "select",
+        "options": [
+          "ACOPOS",
+          "INVERTER",
+          "VIRTUAL",
+          "PSE",
+          "INTERROLL"
+        ]
+      },
+      {
+        "label": "Drive Reference",
+        "field": "driveReference",
+        "type": "select",
+        "options": [
+          "P3",
+          "MICRO",
+          "MULTI",
+          "P74",
+          "P76"
+        ]
+      },
+      {
+        "label": "Hardware Reference",
+        "field": "hardwareReference",
+        "type": "select",
+        "options": [
+          "Hardware 1",
+          "Hardware 2",
+          "Hardware 3"
+        ]
+      },
+      {
+        "label": "Node Number",
+        "field": "nodeNumber",
+        "type": "number",
+        "defaultValue": 1
+      },
+      {
+        "label": "Channel",
+        "field": "channel",
+        "type": "number",
+        "defaultValue": 1
+      },
+      {
+        "label": "Motor Reference",
+        "field": "motorReference",
+        "type": "select",
+        "options": [
+          "8LVA",
+          "8LSA",
+          "STOBBER",
+          "AXE_PSE_301_311",
+          "AXE_PSE_302_312",
+          "AXE_PSE_305_315",
+          "AXE_PSE_322_332",
+          "AXE_PSE_325_335",
+          "AXE_PSE_328"
+        ]
+      },
+      {
+        "label": "Motion Type",
+        "field": "motionType",
+        "type": "select",
+        "options": [
+          "PERIODIC_ROTARY",
+          "ROTARY",
+          "LIMITED_ROTARY",
+          "PERIODIC_LINEAR",
+          "LINEAR",
+          "LIMITED_LINEAR"
+        ]
+      },
+      {
+        "label": "Units",
+        "field": "units",
+        "type": "select",
+        "options": [
+          "DEGREES",
+          "MILLIMETERS"
+        ]
+      },
+      {
+        "label": "Resolution",
+        "field": "resolution",
+        "type": "number",
+        "defaultValue": 0.01
+      },
+      {
+        "label": "Encoder Direction",
+        "field": "encoderRotationDirection",
+        "type": "select",
+        "options": [
+          "CLOCKWISE",
+          "COUNTER_CLOCKWISE"
+        ]
+      },
+      {
+        "label": "Default Velocity",
+        "field": "defaultVelocity",
+        "type": "number"
+      },
+      {
+        "label": "Default Acceleration",
+        "field": "defaultAcceleration",
+        "type": "number"
+      },
+      {
+        "label": "Default Deceleration",
+        "field": "defaultDeceleration",
+        "type": "number"
+      },
+      {
+        "label": "Direction Strategy",
+        "field": "defaultDirection",
+        "type": "select",
+        "options": [
+          "DIR_POSITIVE",
+          "DIR_NEGATIVE",
+          "DIR_CURRENT",
+          "DIR_SHORTEST_WAY",
+          "DIR_EXCEED_PERIOD"
+        ]
+      },
+      {
+        "label": "Gearbox Input",
+        "field": "gearboxInput",
+        "type": "number"
+      },
+      {
+        "label": "Gearbox Output",
+        "field": "gearboxOutput",
+        "type": "number"
+      },
+      {
+        "label": "Transformation",
+        "field": "transformation",
+        "type": "number"
+      }
+    ],
+    "controllerIcon": "cpu",
+    "controllerFields": [
+      {
+        "label": "Tune Mode",
+        "field": "autoTuneMode",
+        "type": "select",
+        "options": [
+          "AXIS_TUNE_AUTOMATIC",
+          "AXIS_TUNE_SPEED",
+          "AXIS_TUNE_POSITION",
+          "AXIS_TUNE_FEED_FORWARD"
+        ]
+      },
+      {
+        "label": "Tune Orientation",
+        "field": "autoTuneOrientation",
+        "type": "select",
+        "options": [
+          "HORIZONTAL",
+          "VERTICAL"
+        ]
+      },
+      {
+        "label": "Max Current (%)",
+        "field": "autoTuneMaxCurrentPercentage",
+        "type": "number",
+        "defaultValue": 80
+      },
+      {
+        "label": "Enable 60 Hz Mode",
+        "field": "inverterEnable60Hz",
+        "type": "boolean",
+        "defaultValue": false
+      },
+      {
+        "label": "Power (W)",
+        "field": "inverterPowerW",
+        "type": "number"
+      },
+      {
+        "label": "Cos Phi",
+        "field": "inverterCosPhi",
+        "type": "number"
+      },
+      {
+        "label": "Voltage (V)",
+        "field": "inverterVoltageV",
+        "type": "number"
+      },
+      {
+        "label": "Current (A)",
+        "field": "inverterCurrentA",
+        "type": "number"
+      },
+      {
+        "label": "Speed (RPM)",
+        "field": "inverterMotorSpeedRpm",
+        "type": "number"
+      },
+      {
+        "label": "Max Freq. (Hz)",
+        "field": "inverterMaxFrequencyHz",
+        "type": "number"
+      }
+    ],
+    "processIcon": "workflow",
+    "processFields": [
+      {
+        "label": "Lower Position",
+        "field": "lowerPosition",
+        "type": "number"
+      },
+      {
+        "label": "Upper Position",
+        "field": "upperPosition",
+        "type": "number"
+      },
+      {
+        "label": "Max Neg. Velocity",
+        "field": "maxNegativeVelocity",
+        "type": "number"
+      },
+      {
+        "label": "Max Pos. Velocity",
+        "field": "maxPositiveVelocity",
+        "type": "number"
+      },
+      {
+        "label": "Max Acceleration",
+        "field": "maxAcceleration",
+        "type": "number"
+      },
+      {
+        "label": "Max Deceleration",
+        "field": "maxDeceleration",
+        "type": "number"
+      },
+      {
+        "label": "Max Torque",
+        "field": "maxTorque",
+        "type": "number"
+      },
+      {
+        "label": "Stop Torque",
+        "field": "stopTorque",
+        "type": "number"
+      },
+      {
+        "label": "Period",
+        "field": "period",
+        "type": "number"
+      },
+      {
+        "label": "Following Error",
+        "field": "followingError",
+        "type": "number"
+      },
+      {
+        "label": "Homing Type",
+        "field": "homingType",
+        "type": "select",
+        "options": [
+          "DIRECT",
+          "ABSOLUTE_SWITCH",
+          "BLOCK_TORQUE",
+          "BLOCK_LAG_ERROR"
+        ]
+      },
+      {
+        "label": "Homing Position",
+        "field": "homingPosition",
+        "type": "number"
+      },
+      {
+        "label": "Homing Direction",
+        "field": "homingDirection",
+        "type": "select",
+        "options": [
+          "NEGATIVE",
+          "POSITIVE"
+        ]
+      },
+      {
+        "label": "Homing Velocity",
+        "field": "homingVelocity",
+        "type": "number"
+      },
+      {
+        "label": "Homing Start Velocity",
+        "field": "homingStartVelocity",
+        "type": "number"
+      },
+      {
+        "label": "Homing Acceleration",
+        "field": "homingAcceleration",
+        "type": "number"
+      },
+      {
+        "label": "Homing Torque Limit",
+        "field": "homingTorqueLimit",
+        "type": "number"
+      },
+      {
+        "label": "Homing Following Error",
+        "field": "homingFollowingError",
+        "type": "number"
+      },
+      {
+        "label": "Backoff Distance",
+        "field": "homingBackoffDistance",
+        "type": "number"
+      }
+    ],
+    "parameterFields": [],
+    "sidebarCapabilities": {
+      "showName": false,
+      "showTranslations": false,
+      "showReserves": false,
+      "showRobot": false
+    }
+  },
+  "mechatro": {
+    "type": "mechatro",
+    "label": "Mechatro",
+    "prefix": "MCH",
+    "hasEmLink": true,
+    "hasParameters": false,
+    "allowsFastCycle": true,
+    "menuIcon": "circuit-board",
+    "configIcon": "settings",
+    "configFields": [
+      {
+        "label": "IP Address",
+        "field": "ipAddress",
+        "type": "text"
+      }
+    ],
+    "sidebarCapabilities": {
+      "showName": false,
+      "showTranslations": false,
+      "showReserves": false,
+      "showRobot": false
+    }
+  },
+  "camera": {
+    "type": "camera",
+    "label": "Camera",
+    "prefix": "CAM",
+    "hasEmLink": true,
+    "hasParameters": true,
+    "menuIcon": "scan-eye",
+    "configIcon": "settings",
+    "configFields": [
+      {
+        "label": "Managed by robot",
+        "field": "managedByRobot",
+        "type": "boolean",
+        "defaultValue": false
+      },
+      {
+        "label": "IP Address",
+        "field": "ipAddress",
+        "type": "text"
+      },
+      {
+        "label": "Brand",
+        "field": "brand",
+        "type": "select",
+        "options": [
+          "CAMERA_UNDEFINED",
+          "CognexInsight",
+          "CognexVC5",
+          "KeyenceCVX",
+          "KeyenceIV4",
+          "KeyenceSRX"
+        ]
+      },
+      {
+        "label": "Managed by controller",
+        "field": "managedByController",
+        "type": "boolean",
+        "defaultValue": true
+      },
+      {
+        "label": "Trigger Source",
+        "field": "triggerSource",
+        "type": "select",
+        "options": [
+          "PLC_Trigger",
+          "IO_Trigger"
+        ]
+      }
+    ],
+    "parameterFields": [
+      {
+        "label": "Recipe Name",
+        "field": "recipeName",
+        "type": "boolean",
+        "defaultValue": true
+      },
+      {
+        "label": "Exposure Time",
+        "field": "exposureTime",
+        "type": "boolean",
+        "defaultValue": false
+      },
+      {
+        "label": "Part Count",
+        "field": "partCount",
+        "type": "boolean",
+        "defaultValue": true
+      },
+      {
+        "label": "Score A",
+        "field": "scoreA",
+        "type": "boolean",
+        "defaultValue": false
+      },
+      {
+        "label": "Score B",
+        "field": "scoreB",
+        "type": "boolean",
+        "defaultValue": false
+      },
+      {
+        "label": "Asymmetric Parts",
+        "field": "asymmetricParts",
+        "type": "boolean",
+        "defaultValue": false
+      }
+    ],
+    "sidebarCapabilities": {
+      "showName": false,
+      "showTranslations": false,
+      "showReserves": false,
+      "showRobot": true
+    }
+  },
+  "robot": {
+    "type": "robot",
+    "label": "Robot",
+    "prefix": "R",
+    "hasEmLink": true,
+    "hasParameters": true,
+    "menuIcon": "bot",
+    "configIcon": "settings",
+    "configFields": [
+      {
+        "label": "IP Address",
+        "field": "ipAddress",
+        "type": "text",
+        "defaultValue": "192.168.200.31"
+      },
+      {
+        "label": "Robot brand",
+        "field": "robotBrand",
+        "type": "select",
+        "options": [
+          "STAUBLI",
+          "FANUC",
+          "ABB",
+          "YASKAWA",
+          "KUKA"
+        ]
+      },
+      {
+        "label": "Tracking active",
+        "field": "trackingActive",
+        "type": "boolean"
+      }
+    ],
+    "processIcon": "workflow",
+    "processFields": [
+      {
+        "label": "Picking ID",
+        "field": "pickingId",
+        "type": "number"
+      },
+      {
+        "label": "Batching ID",
+        "field": "batchingId",
+        "type": "number"
+      },
+      {
+        "label": "Encase ID",
+        "field": "encaseId",
+        "type": "number"
+      },
+      {
+        "label": "Palettization ID",
+        "field": "palettizationId",
+        "type": "number"
+      },
+      {
+        "label": "Gluing ID",
+        "field": "gluingId",
+        "type": "number"
+      }
+    ],
+    "parameterFields": [
+      {
+        "label": "Global Speed",
+        "field": "globalSpeed",
+        "type": "boolean",
+        "defaultValue": true
+      },
+      {
+        "label": "Empty Speed",
+        "field": "emptySpeed",
+        "type": "boolean",
+        "defaultValue": true
+      },
+      {
+        "label": "Full Speed",
+        "field": "fullSpeed",
+        "type": "boolean",
+        "defaultValue": true
+      },
+      {
+        "label": "Home Speed",
+        "field": "homeSpeed",
+        "type": "boolean",
+        "defaultValue": true
+      },
+      {
+        "label": "Empty Acceleration",
+        "field": "emptyAcceleration",
+        "type": "boolean",
+        "defaultValue": false
+      },
+      {
+        "label": "Full Acceleration",
+        "field": "fullAcceleration",
+        "type": "boolean",
+        "defaultValue": false
+      },
+      {
+        "label": "Tracking Start 1",
+        "field": "trackingStart1",
+        "type": "boolean",
+        "defaultValue": true
+      },
+      {
+        "label": "Conveyor Tracking Start 1",
+        "field": "conveyorTrackingStart1",
+        "type": "boolean",
+        "defaultValue": true
+      },
+      {
+        "label": "Tracking Stop 1",
+        "field": "trackingStop1",
+        "type": "boolean",
+        "defaultValue": true
+      },
+      {
+        "label": "Conveyor Tracking Stop 1",
+        "field": "conveyorTrackingStop1",
+        "type": "boolean",
+        "defaultValue": true
+      },
+      {
+        "label": "Tracking Start 2",
+        "field": "trackingStart2",
+        "type": "boolean",
+        "defaultValue": false
+      },
+      {
+        "label": "Conveyor Tracking Start 2",
+        "field": "conveyorTrackingStart2",
+        "type": "boolean",
+        "defaultValue": false
+      },
+      {
+        "label": "Tracking Stop 2",
+        "field": "trackingStop2",
+        "type": "boolean",
+        "defaultValue": false
+      },
+      {
+        "label": "Conveyor Tracking Stop 2",
+        "field": "conveyorTrackingStop2",
+        "type": "boolean",
+        "defaultValue": false
+      },
+      {
+        "label": "Palletizing Recipe",
+        "field": "palletizingRecipe",
+        "type": "boolean",
+        "defaultValue": true
+      }
+    ],
+    "sidebarCapabilities": {
+      "showName": false,
+      "showTranslations": false,
+      "showReserves": false,
+      "showRobot": false,
+      "showRobotVarName": true
+    }
+  },
+  "workplace": {
+    "type": "workplace",
+    "label": "Workplace",
+    "prefix": "WK",
+    "hasEmLink": false,
+    "hasParameters": false,
+    "menuIcon": "layout-grid",
+    "configIcon": "settings",
+    "configFields": [
+      {
+        "label": "Job ID",
+        "field": "jobId",
+        "type": "number",
+        "defaultValue": 1
+      }
+    ],
+    "parameterFields": [],
+    "sidebarCapabilities": {
+      "showName": false,
+      "showTranslations": false,
+      "showReserves": false,
+      "showRobot": false
+    }
+  },
+  "led": {
+    "type": "led",
+    "label": "Led",
+    "prefix": "LED",
+    "hasEmLink": true,
+    "hasParameters": false,
+    "menuIcon": "lamp",
+    "configIcon": "settings",
+    "configFields": [],
+    "parameterFields": [],
+    "sidebarCapabilities": {
+      "showName": false,
+      "showTranslations": false,
+      "showReserves": false,
+      "showRobot": false
+    }
+  }
+}

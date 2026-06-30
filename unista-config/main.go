@@ -1,8 +1,14 @@
+// main.go
 package main
 
 import (
+	"context"
 	"embed"
+	"log"
+
 	"my-machine-app/backend"
+	"my-machine-app/backend/registry"
+	"my-machine-app/backend/services"
 
 	"github.com/wailsapp/wails/v2"
 	"github.com/wailsapp/wails/v2/pkg/options"
@@ -13,10 +19,13 @@ import (
 var assets embed.FS
 
 func main() {
-	// Create an instance of the app structure
 	app := backend.NewApp()
+	storageService := services.NewStorageService()
+	exportService := services.NewExportService()
 
-	// Create application with options
+	calculationService := services.NewCalculationService()
+	registryService := registry.NewService()
+
 	err := wails.Run(&options.App{
 		Title:  "my-machine-app",
 		Width:  1024,
@@ -25,14 +34,23 @@ func main() {
 			Assets: assets,
 		},
 		BackgroundColour: &options.RGBA{R: 27, G: 38, B: 54, A: 1},
-		OnStartup:        app.Startup,
-		OnBeforeClose:    app.BeforeClose,
+		// Dependency injection of the Wails context into all services
+		OnStartup: func(ctx context.Context) {
+			app.Startup(ctx)
+			storageService.Startup(ctx)
+			exportService.Startup(ctx)
+		},
+		OnBeforeClose: app.BeforeClose,
 		Bind: []interface{}{
 			app,
+			storageService,
+			exportService,
+			calculationService,
+			registryService,
 		},
 	})
 
 	if err != nil {
-		println("Error:", err.Error())
+		log.Fatalf("Fatal Wails startup error: %v", err)
 	}
 }

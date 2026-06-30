@@ -4,19 +4,18 @@
     <main class="flex-1 overflow-y-auto">
       <RouterView />
     </main>
+    <ToastContainer />
   </div>
 </template>
 
 <script setup lang="ts">
 import { onMounted } from "vue";
-import { PersistenceService } from "./services/persistenceService";
-import { initAutoSave } from "./services/autoSave";
-import { initCloseHandler } from "./services/closeHandler";
+import { PersistenceService, initCloseHandler } from "./core";
 import Sidebar from "./components/Sidebar.vue";
+import ToastContainer from "./components/ToastContainer.vue";
 
 onMounted(async () => {
-  await PersistenceService.init(); // 1. Load initial data
-  initAutoSave(); // 2. Start background debounce saving
-  initCloseHandler(); // 3. Listen for window close event
+  await PersistenceService.init();
+  initCloseHandler();
 });
 </script>
