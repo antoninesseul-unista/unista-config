@@ -3,7 +3,13 @@
  */
 import { models } from "../../wailsjs/go/models";
 import type { EquipmentInstance } from "../config/equipment";
-import { generateStepsFor, generateId, makeModule, makeParam, makeParams } from "./helpers";
+import {
+  generateStepsFor,
+  generateId,
+  makeModule,
+  makeParam,
+  makeParams,
+} from "./helpers";
 
 export interface TranslationRow {
   id: string;
@@ -17,17 +23,31 @@ export interface TranslationRow {
 }
 
 export type FaultTypeSeed = { index: number; name: string; details: string };
-export type ArchitectureLimitSeed = { index: number; name: string; max: number };
+export type ArchitectureLimitSeed = {
+  index: number;
+  name: string;
+  max: number;
+};
 
 export const createDefaultModules = (): models.MachineModule[] => [
-  { ...makeModule(1), commentFr: "Commentaire", detail: "Details" } as models.MachineModule,
+  {
+    ...makeModule(1),
+    commentFr: "Commentaire",
+    detail: "Details",
+  } as models.MachineModule,
   { ...makeModule(2) } as models.MachineModule,
   { ...makeModule(3) } as models.MachineModule,
   { ...makeModule(4) } as models.MachineModule,
 ];
 
-const createButtonParams = (prefix: string, count: number): models.Parameter[] =>
-  Array.from({ length: count }, (_, i) => makeParam(`${prefix} ${i + 1}`, i + 1) as models.Parameter);
+const createButtonParams = (
+  prefix: string,
+  count: number,
+): models.Parameter[] =>
+  Array.from(
+    { length: count },
+    (_, i) => makeParam(`${prefix} ${i + 1}`, i + 1) as models.Parameter,
+  );
 
 export const createDefaultButtons = (): models.ButtonEntity[] => [
   {
@@ -47,7 +67,12 @@ const createMachineRate = (): models.CounterGroup => {
   p.commentEn = "Machine rate";
   p.commentDe = "Maschinenrate";
   p.commentEs = "Rendimiento de la máquina";
-  return { id: generateId(), name: "Machine Rate", ui: { show: true }, parameters: [p] } as models.CounterGroup;
+  return {
+    id: generateId(),
+    name: "Machine Rate",
+    ui: { show: true },
+    parameters: [p],
+  } as models.CounterGroup;
 };
 
 const createProductCounters = (): models.CounterGroup => {
@@ -60,7 +85,12 @@ const createProductCounters = (): models.CounterGroup => {
   params[0].commentEn = "Products counters";
   params[0].commentDe = "Produktzähler";
   params[0].commentEs = "Contadores de productos";
-  return { id: generateId(), name: "Product Counters", ui: { show: true }, parameters: params } as models.CounterGroup;
+  return {
+    id: generateId(),
+    name: "Product Counters",
+    ui: { show: true },
+    parameters: params,
+  } as models.CounterGroup;
 };
 
 const createGeneralCadences = (): models.CounterGroup => {
@@ -79,7 +109,12 @@ const createGeneralCadences = (): models.CounterGroup => {
     }
     return p;
   });
-  return { id: generateId(), name: "General Cadences", ui: { show: true }, parameters: params } as models.CounterGroup;
+  return {
+    id: generateId(),
+    name: "General Cadences",
+    ui: { show: true },
+    parameters: params,
+  } as models.CounterGroup;
 };
 
 export const createDefaultCounters = (): models.CounterGroup[] => [
@@ -101,7 +136,13 @@ export const createDefaultMessageBoxes = (): models.MessageBoxEntity[] =>
       id: generateId(),
       index,
       name: `Message Box ${index}`,
-      ui: { showTitle: false, showLine1: false, showLine2: false, showBtnLeft: false, showBtnRight: false },
+      ui: {
+        showTitle: false,
+        showLine1: false,
+        showLine2: false,
+        showBtnLeft: false,
+        showBtnRight: false,
+      },
       title: createMsgParam("Title", index * 10 + 1),
       line1: createMsgParam("Ligne 1", index * 10 + 2),
       line2: createMsgParam("Ligne 2", index * 10 + 3),
@@ -133,7 +174,13 @@ const makeFault = (
 export const createDefaultSafetyCategories = (): models.FaultCategory[] => {
   const estops = Array.from({ length: 40 }, (_, i) => {
     const id = i + 1;
-    return makeFault(id, `1025001${id.toString().padStart(2, "0")}`, 1, `Arret d'urgence ${id}`, `Emergency Stop ${id}`);
+    return makeFault(
+      id,
+      `1025001${id.toString().padStart(2, "0")}`,
+      1,
+      `Arret d'urgence ${id}`,
+      `Emergency Stop ${id}`,
+    );
   });
   const doors = Array.from({ length: 40 }, (_, i) => {
     const id = i + 1;
@@ -158,7 +205,13 @@ export const createDefaultSafetyCategories = (): models.FaultCategory[] => {
 export const createDefaultProcessCategories = (): models.FaultCategory[] => {
   const umItems = Array.from({ length: 40 }, (_, i) => {
     const id = i + 1;
-    return makeFault(id, `020000${id.toString().padStart(2, "0")}`, 2, `UM Défaut process ${id}`, `UM Process fault ${id}`);
+    return makeFault(
+      id,
+      `020000${id.toString().padStart(2, "0")}`,
+      2,
+      `UM Défaut process ${id}`,
+      `UM Process fault ${id}`,
+    );
   });
   const categories: models.FaultCategory[] = [
     { name: "UM Process Faults (EM0)", ui: { show: false }, items: umItems },
@@ -166,9 +219,19 @@ export const createDefaultProcessCategories = (): models.FaultCategory[] => {
   for (let em = 1; em <= 8; em++) {
     const items = Array.from({ length: 40 }, (_, i) => {
       const id = i + 1;
-      return makeFault(id, `${em}20000${id.toString().padStart(2, "0")}`, 2, `EM${em} Défaut process ${id}`, `EM${em} Process fault ${id}`);
+      return makeFault(
+        id,
+        `${em}20000${id.toString().padStart(2, "0")}`,
+        2,
+        `EM${em} Défaut process ${id}`,
+        `EM${em} Process fault ${id}`,
+      );
     });
-    categories.push({ name: `EM${em} Process Faults`, ui: { show: false }, items } as models.FaultCategory);
+    categories.push({
+      name: `EM${em} Process Faults`,
+      ui: { show: false },
+      items,
+    } as models.FaultCategory);
   }
   return categories;
 };
@@ -185,15 +248,30 @@ export const createDefaultEquipmentCategories = (): models.FaultCategory[] => {
   return eqMap.map((eq) => {
     const items = Array.from({ length: 15 }, (_, i) => {
       const id = i + 1;
-      return makeFault(id, `X${eq.fam}YYY${id.toString().padStart(2, "0")}`, 2, `Défaut ${eq.name} ${id}`);
+      return makeFault(
+        id,
+        `X${eq.fam}YYY${id.toString().padStart(2, "0")}`,
+        2,
+        `Défaut ${eq.name} ${id}`,
+      );
     });
-    return { name: `${eq.name} Templates (${eq.fam})`, ui: { show: false }, items };
+    return {
+      name: `${eq.name} Templates (${eq.fam})`,
+      ui: { show: false },
+      items,
+    };
   }) as models.FaultCategory[];
 };
 
-export const createDefaultEquipment = (): Record<string, EquipmentInstance[]> => ({});
+export const createDefaultEquipment = (): Record<
+  string,
+  EquipmentInstance[]
+> => ({});
 
-export const createDefaultPages = (): Record<string, models.MachinePage[]> => ({});
+export const createDefaultPages = (): Record<
+  string,
+  models.MachinePage[]
+> => ({});
 
 export const createDefaultFaultTypes = (): FaultTypeSeed[] => [
   { index: 1, name: "FAULT_IMMEDIAT", details: "Bloquant Immediat" },
@@ -284,8 +362,14 @@ export const createDefaultPermissionMatrix = () => [
     color: "text-blue-500",
     icon: "boxes",
     items: [
-      { action: "Use cycle buttons", values: [true, true, true, true, true, true, false, false] },
-      { action: "Use operation modes", values: [true, true, true, true, true, true, false, false] },
+      {
+        action: "Use cycle buttons",
+        values: [true, true, true, true, true, true, false, false],
+      },
+      {
+        action: "Use operation modes",
+        values: [true, true, true, true, true, true, false, false],
+      },
     ],
   },
   {
@@ -294,13 +378,34 @@ export const createDefaultPermissionMatrix = () => [
     color: "text-purple-500",
     icon: "settings",
     items: [
-      { action: "Export recipes", values: [true, true, true, true, false, false, false, false] },
-      { action: "Start and stop recipe in production", values: [true, true, true, true, true, true, false, false] },
-      { action: "Start, stop, and view recipe in development", values: [true, true, true, true, false, false, false, false] },
-      { action: "Rename recipe / change status", values: [true, true, true, true, false, false, false, false] },
-      { action: "Create a new recipe", values: [true, true, true, true, false, false, false, false] },
-      { action: "Change parameter value", values: [true, true, true, true, false, false, false, false] },
-      { action: "Change min/max/IsRecipe of a parameter", values: [true, true, false, false, false, false, false, false] },
+      {
+        action: "Export recipes",
+        values: [true, true, true, true, false, false, false, false],
+      },
+      {
+        action: "Start and stop recipe in production",
+        values: [true, true, true, true, true, true, false, false],
+      },
+      {
+        action: "Start, stop, and view recipe in development",
+        values: [true, true, true, true, false, false, false, false],
+      },
+      {
+        action: "Rename recipe / change status",
+        values: [true, true, true, true, false, false, false, false],
+      },
+      {
+        action: "Create a new recipe",
+        values: [true, true, true, true, false, false, false, false],
+      },
+      {
+        action: "Change parameter value",
+        values: [true, true, true, true, false, false, false, false],
+      },
+      {
+        action: "Change min/max/IsRecipe of a parameter",
+        values: [true, true, false, false, false, false, false, false],
+      },
     ],
   },
   {
@@ -309,11 +414,26 @@ export const createDefaultPermissionMatrix = () => [
     color: "text-orange-500",
     icon: "wrench",
     items: [
-      { action: "Access control / diagnostics", values: [true, true, true, false, false, false, false, false] },
-      { action: "Reset encoder / Autotune / Brake release / Home", values: [true, true, true, false, false, false, false, false] },
-      { action: "Access Synology", values: [true, true, true, false, false, false, false, false] },
-      { action: "Access remote connection", values: [true, true, true, false, false, false, false, false] },
-      { action: "Access cameras", values: [true, true, true, false, false, false, false, false] },
+      {
+        action: "Access control / diagnostics",
+        values: [true, true, true, false, false, false, false, false],
+      },
+      {
+        action: "Reset encoder / Autotune / Brake release / Home",
+        values: [true, true, true, false, false, false, false, false],
+      },
+      {
+        action: "Access Synology",
+        values: [true, true, true, false, false, false, false, false],
+      },
+      {
+        action: "Access remote connection",
+        values: [true, true, true, false, false, false, false, false],
+      },
+      {
+        action: "Access cameras",
+        values: [true, true, true, false, false, false, false, false],
+      },
     ],
   },
   {
@@ -322,14 +442,38 @@ export const createDefaultPermissionMatrix = () => [
     color: "text-teal-500",
     icon: "users",
     items: [
-      { action: "View user list", values: [true, true, false, false, false, false, false, false] },
-      { action: "Add a user", values: [true, true, false, false, false, false, false, false] },
-      { action: "Modify roles", values: [true, true, false, false, false, false, false, false] },
-      { action: "Modify profiles", values: [true, true, false, false, false, false, false, false] },
-      { action: "Lock a user", values: [true, true, false, false, false, false, false, false] },
-      { action: "Deactivate a user", values: [true, true, false, false, false, false, false, false] },
-      { action: "View user history", values: [true, true, false, false, false, false, false, false] },
-      { action: "Export users", values: [true, true, false, false, false, false, false, false] },
+      {
+        action: "View user list",
+        values: [true, true, false, false, false, false, false, false],
+      },
+      {
+        action: "Add a user",
+        values: [true, true, false, false, false, false, false, false],
+      },
+      {
+        action: "Modify roles",
+        values: [true, true, false, false, false, false, false, false],
+      },
+      {
+        action: "Modify profiles",
+        values: [true, true, false, false, false, false, false, false],
+      },
+      {
+        action: "Lock a user",
+        values: [true, true, false, false, false, false, false, false],
+      },
+      {
+        action: "Deactivate a user",
+        values: [true, true, false, false, false, false, false, false],
+      },
+      {
+        action: "View user history",
+        values: [true, true, false, false, false, false, false, false],
+      },
+      {
+        action: "Export users",
+        values: [true, true, false, false, false, false, false, false],
+      },
     ],
   },
 ];

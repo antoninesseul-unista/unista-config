@@ -3,23 +3,34 @@
   <aside
     class="w-64 h-screen bg-[#fbfbfa] border-r border-gray-200 flex flex-col"
   >
-    <div class="px-6 py-8 shrink-0">
+    <div class="px-5 py-5 border-b border-gray-100 bg-gray-50/50 shrink-0">
       <div class="flex items-center gap-3">
         <div
-          class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center shadow-lg shadow-blue-200 shrink-0"
+          class="w-8 h-8 bg-blue-600 rounded-xl flex items-center justify-center shadow-md shadow-blue-100 shrink-0"
         >
-          <span class="text-white font-black text-sm">U</span>
+          <AppIcon name="panels-top-left" :size="16" class="text-white" />
         </div>
-        <span class="font-bold text-gray-900 tracking-tight whitespace-nowrap"
-          >Unista Config</span
-        >
+
+        <div class="flex flex-col min-w-0 flex-1">
+          <span
+            class="text-xs font-bold text-gray-900 truncate tracking-tight font-mono"
+          >
+            {{ appState.generalConfig.machineName || "UNNAMED MACHINE" }}
+          </span>
+          <span
+            class="text-[9px] font-bold text-gray-400 font-mono truncate tracking-wider uppercase mt-0.5"
+          >
+            {{ appState.generalConfig.projectNumber || "---" }} |
+            {{ appState.generalConfig.serialNumber || "---" }}
+          </span>
+        </div>
 
         <RouterLink
           to="/updates"
-          class="ml-auto text-gray-400 hover:text-gray-900 transition-colors"
+          class="text-gray-400 hover:text-gray-900 transition-colors shrink-0"
           title="System Updates"
         >
-          <AppIcon name="settings" :size="20" />
+          <AppIcon name="settings" :size="18" />
         </RouterLink>
       </div>
     </div>
@@ -277,7 +288,11 @@ import {
   GenerationService,
 } from "../core";
 
-const { equipment: equipmentStores, pages: pageStores } = useConfigStore();
+const {
+  state: appState,
+  equipment: equipmentStores,
+  pages: pageStores,
+} = useConfigStore();
 
 type NavItem = {
   label: string;

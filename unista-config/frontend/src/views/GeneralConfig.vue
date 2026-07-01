@@ -45,9 +45,14 @@
             </label>
             <input
               type="text"
-              v-model="config.serialNumber"
+              :value="config.serialNumber"
               maxlength="8"
               placeholder="00000000"
+              @input="
+                config.serialNumber = (
+                  $event.target as HTMLInputElement
+                ).value.replace(/\D/g, '')
+              "
               class="w-full px-3 py-2 border border-gray-200 rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all font-mono"
             />
           </div>
@@ -95,7 +100,7 @@
             <input
               type="text"
               v-model="config.machineIpAddress"
-              placeholder="192.168.1.10"
+              placeholder="192.168.200.2"
               :class="[
                 'w-full px-3 py-2 border rounded-md text-sm outline-none transition-all font-mono',
                 hasIpError(config.machineIpAddress)
@@ -119,7 +124,7 @@
             <input
               type="text"
               v-model="config.machineSubnetMask"
-              placeholder="255.255.255.0"
+              placeholder="255.255.240.0"
               :class="[
                 'w-full px-3 py-2 border rounded-md text-sm outline-none transition-all font-mono',
                 hasIpError(config.machineSubnetMask)
@@ -154,7 +159,7 @@
             <input
               type="text"
               v-model="config.ethernetIpAddress"
-              placeholder="10.0.0.10"
+              placeholder="192.168.150.2"
               :class="[
                 'w-full px-3 py-2 border rounded-md text-sm outline-none transition-all font-mono',
                 hasIpError(config.ethernetIpAddress)
