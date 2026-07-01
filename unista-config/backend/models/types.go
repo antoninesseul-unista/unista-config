@@ -224,6 +224,8 @@ type AppData struct {
 	Cfr21           map[string]any             `json:"cfr21"`
 	Roles           map[string]any             `json:"roles"`
 
+	DetectedHardware []HardwareModule          `json:"detectedHardware"`
+	
 	// Strongly typed sections
 	Modules      []MachineModule            `json:"modules"`
 	Equipment    map[string][]map[string]any `json:"equipment"`
@@ -249,4 +251,22 @@ type Electrovalve struct {
 	CenterType string      `json:"centerType"`
 	SensorType string      `json:"sensorType"`
 	Parameters []Parameter `json:"parameters"`
+}
+
+// ---------------------------------------------------------
+// HARDWARE DETECTION
+// ---------------------------------------------------------
+type HardwareChannel struct {
+	ChannelNumber int `json:"channelNumber"`
+}
+
+// HardwareModule représente un module matériel détecté dans le fichier Hardware.hw
+type HardwareModule struct {
+	Name        string            `json:"name"`
+	ModuleType  string            `json:"moduleType"`
+	Category    string            `json:"category"`
+	NodeNumber  int               `json:"nodeNumber"`
+	AxesCount   int               `json:"axesCount"` // Utilisé comme fallback
+	Channels    []HardwareChannel `json:"channels"`
+	Description string            `json:"description"`
 }

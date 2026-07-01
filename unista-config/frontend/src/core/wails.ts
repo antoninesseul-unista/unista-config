@@ -5,6 +5,8 @@ import { LoadData, SaveData } from "../../wailsjs/go/services/StorageService";
 import { models } from "../../wailsjs/go/models";
 import { hydrateAppState, replaceAppState, serializeAppState } from "./state";
 import { GenerateSTFiles } from "../../wailsjs/go/backend/App";
+import { ImportHardwareConfig } from "../../wailsjs/go/backend/App";
+import { AutoLoadHardware } from "../../wailsjs/go/backend/App";
 
 export const CalculationService = {
   parseRobotMask: (mask: string | undefined | null) =>
@@ -94,5 +96,17 @@ export const PersistenceService = {
     replaceAppState(data);
     await this.saveAll();
     return "imported";
+  },
+};
+
+export const HardwareService = {
+  async autoLoadHardware(): Promise<models.HardwareModule[] | null> {
+    try {
+      const modules = await AutoLoadHardware();
+      return modules || null;
+    } catch (e) {
+      console.error("[HardwareService] Auto-load hardware failed:", e);
+      return null;
+    }
   },
 };

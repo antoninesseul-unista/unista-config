@@ -468,6 +468,60 @@ export namespace models {
 		    return a;
 		}
 	}
+	export class HardwareChannel {
+	    channelNumber: number;
+	
+	    static createFrom(source: any = {}) {
+	        return new HardwareChannel(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.channelNumber = source["channelNumber"];
+	    }
+	}
+	export class HardwareModule {
+	    name: string;
+	    moduleType: string;
+	    category: string;
+	    nodeNumber: number;
+	    axesCount: number;
+	    channels: HardwareChannel[];
+	    description: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new HardwareModule(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.name = source["name"];
+	        this.moduleType = source["moduleType"];
+	        this.category = source["category"];
+	        this.nodeNumber = source["nodeNumber"];
+	        this.axesCount = source["axesCount"];
+	        this.channels = this.convertValues(source["channels"], HardwareChannel);
+	        this.description = source["description"];
+	    }
+	
+		convertValues(a: any, classs: any, asMap: boolean = false): any {
+		    if (!a) {
+		        return a;
+		    }
+		    if (a.slice && a.map) {
+		        return (a as any[]).map(elem => this.convertValues(elem, classs));
+		    } else if ("object" === typeof a) {
+		        if (asMap) {
+		            for (const key of Object.keys(a)) {
+		                a[key] = new classs(a[key]);
+		            }
+		            return a;
+		        }
+		        return new classs(a);
+		    }
+		    return a;
+		}
+	}
 	export class AppData {
 	    schemaVersion?: number;
 	    systemConstants: Record<string, any>;
@@ -475,6 +529,7 @@ export namespace models {
 	    translations: any[];
 	    cfr21: Record<string, any>;
 	    roles: Record<string, any>;
+	    detectedHardware: HardwareModule[];
 	    modules: MachineModule[];
 	    equipment: Record<string, Array<any>>;
 	    buttons: ButtonEntity[];
@@ -496,6 +551,7 @@ export namespace models {
 	        this.translations = source["translations"];
 	        this.cfr21 = source["cfr21"];
 	        this.roles = source["roles"];
+	        this.detectedHardware = this.convertValues(source["detectedHardware"], HardwareModule);
 	        this.modules = this.convertValues(source["modules"], MachineModule);
 	        this.equipment = source["equipment"];
 	        this.buttons = this.convertValues(source["buttons"], ButtonEntity);
@@ -573,6 +629,8 @@ export namespace models {
 		    return a;
 		}
 	}
+	
+	
 	
 	
 	

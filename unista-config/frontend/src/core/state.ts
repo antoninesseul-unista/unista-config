@@ -29,7 +29,10 @@ import {
 } from "./defaults";
 import { equipmentRegistry, pageRegistry } from "./registry";
 
-export type { FaultTypeSeed as FaultType, ArchitectureLimitSeed as ArchitectureLimit } from "./defaults";
+export type {
+  FaultTypeSeed as FaultType,
+  ArchitectureLimitSeed as ArchitectureLimit,
+} from "./defaults";
 export type { TranslationRow };
 
 export const CONFIG_SCHEMA_VERSION = 1;
@@ -58,6 +61,7 @@ export interface AppState {
     rolesList: ReturnType<typeof createDefaultRolesList>;
     permissionMatrix: ReturnType<typeof createDefaultPermissionMatrix>;
   };
+  detectedHardware: models.HardwareModule[];
 }
 
 export function createDefaultAppState(): AppState {
@@ -85,6 +89,7 @@ export function createDefaultAppState(): AppState {
       rolesList: createDefaultRolesList(),
       permissionMatrix: createDefaultPermissionMatrix(),
     },
+    detectedHardware: [],
   };
 }
 
@@ -97,14 +102,20 @@ export const messageBoxes = toRef(appState, "messageBoxes");
 export const rolesState = toRef(appState.roles, "rolesList");
 export const permissionMatrixState = toRef(appState.roles, "permissionMatrix");
 export const faultTypes = toRef(appState.systemConstants, "faultTypes");
-export const architectureLimits = toRef(appState.systemConstants, "architectureLimits");
+export const architectureLimits = toRef(
+  appState.systemConstants,
+  "architectureLimits",
+);
 export const translationsState = toRef(appState, "translations");
 
 export function serializeAppState(): models.AppData {
   return {
     schemaVersion: CONFIG_SCHEMA_VERSION,
     modules: appState.modules,
-    equipment: appState.equipment as Record<string, Array<Record<string, unknown>>>,
+    equipment: appState.equipment as Record<
+      string,
+      Array<Record<string, unknown>>
+    >,
     pages: appState.pages,
     buttons: appState.buttons,
     cycleButtons: appState.cycleButtons,
@@ -138,6 +149,7 @@ export function serializeAppState(): models.AppData {
       rolesList: appState.roles.rolesList,
       permissionMatrix: appState.roles.permissionMatrix,
     },
+    detectedHardware: appState.detectedHardware,
   } as unknown as models.AppData;
 }
 
@@ -146,7 +158,10 @@ function migrateEquipmentData(
 ): Record<string, EquipmentInstance[]> {
   const rawEquipment = { ...equipment };
   if (rawEquipment.robotJob) {
-    const legacy = rawEquipment.robotJob.map((eq) => ({ ...eq, type: "workplace" }));
+    const legacy = rawEquipment.robotJob.map((eq) => ({
+      ...eq,
+      type: "workplace",
+    }));
     rawEquipment.workplace = rawEquipment.workplace
       ? [...rawEquipment.workplace, ...legacy]
       : legacy;
@@ -154,7 +169,9 @@ function migrateEquipmentData(
   }
   for (const key of Object.keys(rawEquipment)) {
     rawEquipment[key] = rawEquipment[key].map((eq) =>
-      eq.type === "robotJob" ? ({ ...eq, type: "workplace" } as EquipmentInstance) : eq,
+      eq.type === "robotJob"
+        ? ({ ...eq, type: "workplace" } as EquipmentInstance)
+        : eq,
     );
   }
   return rawEquipment;
@@ -200,7 +217,9 @@ function applyAppData(data: models.AppData, mode: "merge" | "replace"): void {
   }
 
   if (data.equipment) {
-    const migrated = migrateEquipmentData(data.equipment as Record<string, EquipmentInstance[]>);
+    const migrated = migrateEquipmentData(
+      data.equipment as Record<string, EquipmentInstance[]>,
+    );
     if (replace) {
       replaceRecordInPlace(
         appState.equipment,
@@ -220,7 +239,12 @@ function applyAppData(data: models.AppData, mode: "merge" | "replace"): void {
       }
     }
   } else if (replace) {
-    replaceRecordInPlace(appState.equipment, {}, Object.keys(equipmentRegistry.value), []);
+    replaceRecordInPlace(
+      appState.equipment,
+      {},
+      Object.keys(equipmentRegistry.value),
+      [],
+    );
   }
 
   if (data.pages) {
@@ -232,7 +256,10 @@ function applyAppData(data: models.AppData, mode: "merge" | "replace"): void {
         [],
       );
     } else {
-      const pageKeys = new Set([...Object.keys(pageRegistry.value), ...Object.keys(data.pages)]);
+      const pageKeys = new Set([
+        ...Object.keys(pageRegistry.value),
+        ...Object.keys(data.pages),
+      ]);
       for (const key of pageKeys) {
         if (data.pages[key]) {
           appState.pages[key] = data.pages[key];
@@ -240,7 +267,12 @@ function applyAppData(data: models.AppData, mode: "merge" | "replace"): void {
       }
     }
   } else if (replace) {
-    replaceRecordInPlace(appState.pages, {}, Object.keys(pageRegistry.value), []);
+    replaceRecordInPlace(
+      appState.pages,
+      {},
+      Object.keys(pageRegistry.value),
+      [],
+    );
   }
 
   if (replace || data.buttons?.length) {
@@ -260,7 +292,8 @@ function applyAppData(data: models.AppData, mode: "merge" | "replace"): void {
     if (replace) {
       appState.faultCategories.safety = data.faults.safety?.categories ?? [];
       appState.faultCategories.process = data.faults.process?.categories ?? [];
-      appState.faultCategories.equipment = data.faults.equipment?.categories ?? [];
+      appState.faultCategories.equipment =
+        data.faults.equipment?.categories ?? [];
     } else {
       if (data.faults.safety?.categories) {
         appState.faultCategories.safety = data.faults.safety.categories;
@@ -285,7 +318,8 @@ function applyAppData(data: models.AppData, mode: "merge" | "replace"): void {
     }
     if (replace || data.systemConstants.architectureLimits) {
       appState.systemConstants.architectureLimits =
-        (data.systemConstants.architectureLimits as ArchitectureLimitSeed[]) ?? [];
+        (data.systemConstants.architectureLimits as ArchitectureLimitSeed[]) ??
+        [];
     }
   }
 
@@ -324,6 +358,13 @@ function applyAppData(data: models.AppData, mode: "merge" | "replace"): void {
     if (replace || data.roles.permissionMatrix) {
       appState.roles.permissionMatrix = data.roles.permissionMatrix ?? [];
     }
+  }
+
+  if (data.detectedHardware) {
+    appState.detectedHardware =
+      data.detectedHardware as models.HardwareModule[];
+  } else if (replace) {
+    appState.detectedHardware = [];
   }
 }
 

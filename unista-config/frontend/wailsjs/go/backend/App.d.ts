@@ -3,8 +3,12 @@
 import {models} from '../models';
 import {context} from '../models';
 
+export function AutoLoadHardware():Promise<Array<models.HardwareModule>>;
+
 export function ConfirmClose():Promise<void>;
 
 export function GenerateSTFiles(arg1:models.AppData):Promise<string>;
+
+export function ImportHardwareConfig():Promise<Array<models.HardwareModule>>;
 
 export function Startup(arg1:context.Context):Promise<void>;

@@ -13,6 +13,8 @@
             'driveReference',
             'hardwareReference',
             'motorReference',
+            'channel',
+            'nodeNumber',
           ])
         "
       >
@@ -48,9 +50,7 @@
                 : 'border-gray-200 bg-white focus:ring-1 focus:ring-blue-500',
             ]"
           >
-            <option :value="null" disabled hidden>
-              -- Select Controller --
-            </option>
+            <option :value="null" disabled hidden>-- Select --</option>
             <option v-for="c in controllers" :key="c" :value="c">
               {{ c }}
             </option>
@@ -75,7 +75,7 @@
                 : 'border-gray-200 bg-white focus:ring-1 focus:ring-blue-500',
             ]"
           >
-            <option :value="null" disabled hidden>-- Select Drive --</option>
+            <option :value="null" disabled hidden>-- Select --</option>
             <option v-for="d in availableDrives" :key="d" :value="d">
               {{ d }}
             </option>
@@ -83,27 +83,51 @@
         </div>
 
         <div>
-          <label
-            :class="[
-              'block text-[11px] font-bold uppercase tracking-wider mb-1',
-              hasError('hardwareReference') ? 'text-red-600' : 'text-gray-500',
-            ]"
-            >Hardware Reference</label
-          >
+          <div class="flex items-center justify-between mb-1">
+            <label
+              :class="[
+                'block text-[11px] font-bold uppercase tracking-wider',
+                hasError('hardwareReference')
+                  ? 'text-red-600'
+                  : 'text-gray-500',
+              ]"
+              >Hardware Reference</label
+            >
+            <button
+              @click="refreshHardware"
+              type="button"
+              class="text-gray-400 hover:text-blue-600 transition-colors p-0.5 rounded cursor-pointer"
+              title="Rafraîchir depuis le fichier Hardware.hw"
+            >
+              <AppIcon name="refresh-cw" :size="12" />
+            </button>
+          </div>
+
           <select
             v-model="axis.hardwareReference"
+            @change="AxisSanitizer.onHardwareChange(axis)"
+            :disabled="hardwareList.length === 0"
             :class="[
               'w-full px-2 py-1.5 border rounded-md text-sm outline-none transition-colors',
               hasError('hardwareReference')
                 ? 'border-red-400 bg-red-50 text-red-900 focus:ring-red-500'
-                : 'border-gray-200 bg-white focus:ring-1 focus:ring-blue-500',
+                : hardwareList.length === 0
+                  ? 'border-gray-200 cursor-not-allowed bg-gray-50 text-gray-500'
+                  : 'border-gray-200 bg-white focus:ring-1 focus:ring-blue-500',
             ]"
           >
-            <option :value="null" disabled hidden>-- Select Hardware --</option>
+            <option :value="null" disabled hidden>-- Select --</option>
             <option v-for="h in hardwareList" :key="h" :value="h">
               {{ h }}
             </option>
           </select>
+
+          <p
+            v-if="hardwareList.length === 0"
+            class="text-[10px] text-red-500 font-medium mt-1 leading-tight"
+          >
+            No compatible hardware found in the configuration.
+          </p>
         </div>
 
         <div class="grid grid-cols-2 gap-2">
@@ -115,7 +139,6 @@
             <input
               type="number"
               :value="axis.nodeNumber ?? ''"
-              @input="setNumber('nodeNumber', $event)"
               placeholder="Auto from HW"
               disabled
               class="w-full px-2 py-1.5 border border-gray-200 bg-gray-100 rounded-md text-sm font-mono text-gray-400 cursor-not-allowed"
@@ -123,17 +146,35 @@
           </div>
           <div>
             <label
-              class="block text-[11px] font-bold uppercase tracking-wider mb-1 text-gray-500"
+              :class="[
+                'block text-[11px] font-bold uppercase tracking-wider mb-1',
+                hasError('channel') ? 'text-red-600' : 'text-gray-500',
+              ]"
               >Channel</label
             >
-            <input
-              type="number"
-              :value="axis.channel ?? ''"
-              @input="setNumber('channel', $event)"
-              placeholder="Auto from HW"
-              disabled
-              class="w-full px-2 py-1.5 border border-gray-200 bg-gray-100 rounded-md text-sm font-mono text-gray-400 cursor-not-allowed"
-            />
+            <select
+              v-model="axis.channel"
+              :disabled="!axis.hardwareReference || availableChannels.length === 0"
+              :class="[
+                'w-full px-2 py-1.5 border rounded-md text-sm font-mono outline-none transition-colors',
+                hasError('channel')
+                  ? 'border-red-400 bg-red-50 text-red-900 focus:ring-red-500'
+                  : (!axis.hardwareReference || availableChannels.length === 0)
+                    ? 'border-gray-200 cursor-not-allowed bg-gray-100 text-gray-500'
+                    : 'border-gray-200 bg-white focus:ring-1 focus:ring-blue-500',
+              ]"
+            >
+              <option :value="null" disabled hidden>--</option>
+              <option v-for="c in availableChannels" :key="c" :value="c">
+                {{ c }}
+              </option>
+            </select>
+            <p
+              v-if="hasError('channel') && axis.channel != null && axis.channel !== ''"
+              class="text-[10px] text-red-500 font-medium mt-1 leading-tight"
+            >
+              Conflit : ce canal est déjà utilisé sur ce variateur.
+            </p>
           </div>
         </div>
 
@@ -154,7 +195,7 @@
                 : 'border-gray-200 bg-white focus:ring-1 focus:ring-blue-500',
             ]"
           >
-            <option :value="null" disabled hidden>-- Select Motor --</option>
+            <option :value="null" disabled hidden>-- Select --</option>
             <option v-for="m in availableMotors" :key="m" :value="m">
               {{ m }}
             </option>
@@ -214,7 +255,7 @@
                 : 'border-gray-200 bg-white focus:ring-1 focus:ring-blue-500',
             ]"
           >
-            <option :value="null" disabled hidden>-- Select Motion --</option>
+            <option :value="null" disabled hidden>-- Select --</option>
             <option v-for="m in availableMotions" :key="m" :value="m">
               {{ m }}
             </option>
@@ -238,7 +279,7 @@
                 : 'border-gray-200 bg-white focus:ring-1 focus:ring-blue-500',
             ]"
           >
-            <option :value="null" disabled hidden>-- Select Units --</option>
+            <option :value="null" disabled hidden>-- Select --</option>
             <option v-for="u in availableUnits" :key="u" :value="u">
               {{ u }}
             </option>
@@ -293,9 +334,7 @@
                 : 'border-gray-200 bg-white focus:ring-1 focus:ring-blue-500',
             ]"
           >
-            <option :value="null" disabled hidden>
-              -- Select Direction --
-            </option>
+            <option :value="null" disabled hidden>-- Select --</option>
             <option value="CLOCKWISE">CLOCKWISE</option>
             <option value="COUNTER_CLOCKWISE">COUNTER_CLOCKWISE</option>
           </select>
@@ -760,7 +799,7 @@
                 : 'border-gray-200 bg-white focus:ring-1 focus:ring-blue-500',
             ]"
           >
-            <option :value="null" disabled hidden>-- Select Strategy --</option>
+            <option :value="null" disabled hidden>-- Select --</option>
             <option value="DIR_POSITIVE">DIR_POSITIVE</option>
             <option value="DIR_NEGATIVE">DIR_NEGATIVE</option>
             <option value="DIR_CURRENT">DIR_CURRENT</option>
@@ -924,7 +963,7 @@
                 : 'border-gray-200 bg-white focus:ring-1 focus:ring-blue-500',
             ]"
           >
-            <option :value="null" disabled hidden>-- Select Homing --</option>
+            <option :value="null" disabled hidden>-- Select --</option>
             <option v-for="h in availableHomings" :key="h" :value="h">
               {{ h }}
             </option>
@@ -975,9 +1014,7 @@
                 : 'border-gray-200 bg-white focus:ring-1 focus:ring-blue-500',
             ]"
           >
-            <option :value="null" disabled hidden>
-              -- Select Direction --
-            </option>
+            <option :value="null" disabled hidden>-- Select --</option>
             <option value="NEGATIVE">NEGATIVE</option>
             <option value="POSITIVE">POSITIVE</option>
           </select>
@@ -1215,7 +1252,7 @@
                 : 'border-gray-200 bg-white focus:ring-1 focus:ring-blue-500',
             ]"
           >
-            <option :value="null" disabled hidden>-- Select Mode --</option>
+            <option :value="null" disabled hidden>-- Select --</option>
             <option value="AXIS_TUNE_AUTOMATIC">AXIS_TUNE_AUTOMATIC</option>
             <option value="AXIS_TUNE_SPEED">AXIS_TUNE_SPEED</option>
             <option value="AXIS_TUNE_POSITION">AXIS_TUNE_POSITION</option>
@@ -1244,9 +1281,7 @@
                 : 'border-gray-200 bg-white focus:ring-1 focus:ring-blue-500',
             ]"
           >
-            <option :value="null" disabled hidden>
-              -- Select Orientation --
-            </option>
+            <option :value="null" disabled hidden>-- Select --</option>
             <option value="HORIZONTAL">HORIZONTAL</option>
             <option value="VERTICAL">VERTICAL</option>
           </select>
@@ -1509,6 +1544,9 @@ import CollapsibleSection from "../../components/CollapsibleSection.vue";
 import { AxisRuleProvider } from "../../domain/axis/axisRuleProvider";
 import { AxisSanitizer } from "../../domain/axis/axisSanitizer";
 import { hardwareProvider } from "../../services/hardware/hardwareProvider";
+import { appState } from "../../core/state";
+import { toast } from "../../composables/useToast";
+import { HardwareService } from "../../core/wails";
 
 const props = defineProps<{
   axis: any;
@@ -1548,8 +1586,12 @@ const availableHomings = computed(() =>
     props.axis.driveReference || "",
   ),
 );
-const hardwareList = computed(() => hardwareProvider.getReferences());
-
+const hardwareList = computed(() =>
+  hardwareProvider.getReferences(
+    props.axis.controllerType || "",
+    props.axis.driveReference || "",
+  ),
+);
 const uPos = computed((): string => {
   switch (props.axis.units) {
     case "DEGREES":
@@ -1574,6 +1616,37 @@ const setNumber = (field: string, event: Event): void => {
   const val = (event.target as HTMLInputElement).value;
   props.axis[field] = val === "" ? null : Number(val);
 };
+
+const refreshHardware = async () => {
+  try {
+    const modules = await HardwareService.autoLoadHardware();
+    if (modules && modules.length > 0) {
+      appState.detectedHardware = modules;
+      toast.success("Hardware rafraîchi", {
+        description: `${modules.length} modules détectés.`,
+      });
+    } else {
+      toast.warning("Aucun hardware", {
+        description: "Fichier Hardware.hw introuvable ou vide.",
+      });
+    }
+  } catch (err) {
+    console.error("Hardware refresh failed:", err);
+    toast.error("Erreur de rafraîchissement", {
+      description: "Impossible d'analyser le fichier.",
+    });
+  }
+};
+
+const availableChannels = computed(() => {
+  if (!props.axis.hardwareReference) return [];
+  const details = hardwareProvider.getHardwareDetails(
+    props.axis.hardwareReference,
+  );
+  if (!details) return [];
+  // Crée un tableau [1, 2, 3, 4] selon le nombre d'axes du variateur
+  return Array.from({ length: details.axesCount }, (_, i) => i + 1);
+});
 
 const hasSectionError = (fields: string[]): boolean =>
   fields.some((f) => props.hasError(f));

@@ -1,3 +1,4 @@
+import { hardwareProvider } from "../../services/hardware/hardwareProvider";
 import { AxisRuleProvider } from "./axisRuleProvider";
 
 /**
@@ -142,6 +143,19 @@ export class AxisSanitizer {
     } else {
       const units = AxisRuleProvider.getAvailableUnits(axis.motionType || "");
       this.sanitizeChoice(axis, "units", units);
+    }
+  }
+  public static onHardwareChange(axis: any): void {
+    if (!axis || !axis.hardwareReference) return;
+
+    const details = hardwareProvider.getHardwareDetails(axis.hardwareReference);
+
+    if (details) {
+      axis.nodeNumber = details.nodeNumber;
+      // Si aucun canal n'est défini ou s'il dépasse la capacité, on force à 1
+      if (!axis.channel || axis.channel > details.axesCount) {
+        axis.channel = 1;
+      }
     }
   }
 }

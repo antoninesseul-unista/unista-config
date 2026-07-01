@@ -1,4 +1,8 @@
-import type { ConfigField, EquipmentDefinition, EquipmentInstance } from "../config/equipment";
+import type {
+  ConfigField,
+  EquipmentDefinition,
+  EquipmentInstance,
+} from "../config/equipment";
 import { CalculationService } from "./wails";
 import type { models } from "../../wailsjs/go/models";
 
@@ -13,7 +17,9 @@ export const getRobotId = (eq: EquipmentInstance): string | null => {
   return null;
 };
 
-export const allFieldDefs = (definition: EquipmentDefinition): ConfigField[] => [
+export const allFieldDefs = (
+  definition: EquipmentDefinition,
+): ConfigField[] => [
   ...(definition.configFields || []),
   ...(definition.controllerFields || []),
   ...(definition.processFields || []),
@@ -35,11 +41,12 @@ export async function buildValidationCaches(
 
     fieldVisibility[eq.id] = {};
     for (const field of allFields) {
-      fieldVisibility[eq.id][field.field] = await CalculationService.isConfigFieldVisible(
-        eq.type,
-        eq as Record<string, unknown>,
-        field.field,
-      );
+      fieldVisibility[eq.id][field.field] =
+        await CalculationService.isConfigFieldVisible(
+          eq.type,
+          eq as Record<string, unknown>,
+          field.field,
+        );
     }
   }
 
@@ -48,7 +55,11 @@ export async function buildValidationCaches(
       const mask = await CalculationService.parseRobotMask(param.robotMask);
       for (let r = 0; r < 32; r++) {
         if (!(await CalculationService.isRobotSelected(mask, r))) continue;
-        const result = await CalculationService.validateRobotVarIndexForRobot(param, r, allParams);
+        const result = await CalculationService.validateRobotVarIndexForRobot(
+          param,
+          r,
+          allParams,
+        );
         if (result.hasError) {
           paramErrorMessages[param.id] = result.message;
           break;
@@ -101,7 +112,8 @@ export const isNameError = (
     if (!e.enable || e.id === eq.id || e.name !== eq.name) return false;
     const otherRobotId = getRobotId(e);
     if (!thisRobotId && !otherRobotId) return true;
-    if (thisRobotId && otherRobotId && thisRobotId === otherRobotId) return true;
+    if (thisRobotId && otherRobotId && thisRobotId === otherRobotId)
+      return true;
     return false;
   });
 };
@@ -117,8 +129,14 @@ export const isFieldError = (
   if (!eq.enable) return false;
 
   const cfg = allFieldDefs(definition).find((f) => f.field === field);
+  const val = eq[field];
 
-  if (cfg && (cfg.type === "select" || cfg.type === "number") && eq[field] === null) {
+  // CORRECTION MAJEURE: On intercepte null, undefined et "" (chaîne vide)
+  if (
+    cfg &&
+    (cfg.type === "select" || cfg.type === "number") &&
+    (val === null || val === undefined || val === "")
+  ) {
     if (!isFieldVisible(eq, cfg, caches)) return false;
     return true;
   }
@@ -127,7 +145,26 @@ export const isFieldError = (
     if (!eq.jobId || eq.jobId === 0) return true;
     if (eq.robotId) {
       const duplicate = workplaceList.find(
-        (j) => j.id !== eq.id && j.robotId === eq.robotId && j.jobId === eq.jobId,
+        (j) =>
+          j.id !== eq.id && j.robotId === eq.robotId && j.jobId === eq.jobId,
+      );
+      if (duplicate) return true;
+    }
+  }
+
+  // Validation des conflits de canaux pour les axes
+  if (field === "channel" && definition.type === "axis") {
+    if (val === null || val === undefined || val === "") return true;
+
+    if (eq.hardwareReference) {
+      // Cherche s'il existe un autre axe actif utilisant le même hardware et le même canal
+      const duplicate = allEquipment.find(
+        (e) =>
+          e.enable &&
+          e.type === "axis" &&
+          e.id !== eq.id &&
+          e.hardwareReference === eq.hardwareReference &&
+          String(e.channel) === String(eq.channel),
       );
       if (duplicate) return true;
     }
@@ -145,25 +182,6 @@ export const isFieldError = (
         e.ipAddress === eq.ipAddress,
     );
   }
-
-  if (
-    definition.type === "camera" &&
-    eq.managedByController === true &&
-    isFieldVisible(eq, { field: "managedByController", label: "", type: "boolean" }, caches)
-  ) {
-    const requiredControllerFields = [
-      "controllerName",
-      "controllerId",
-      "channel",
-      "startAreaExchanges",
-      "nbInfos",
-      "exchangesSize",
-    ];
-    if (requiredControllerFields.includes(field)) {
-      return eq[field] === null || eq[field] === undefined || eq[field] === "";
-    }
-  }
-
   return false;
 };
 
@@ -172,9 +190,14 @@ export const getParamErrorMessage = (
   caches: ValidationCaches,
 ): string | null => caches.paramErrorMessages[param.id] ?? null;
 
-export const hasParamsError = (eq: EquipmentInstance, caches: ValidationCaches): boolean => {
+export const hasParamsError = (
+  eq: EquipmentInstance,
+  caches: ValidationCaches,
+): boolean => {
   if (!eq.enable) return false;
-  return (eq.parameters ?? []).some((p) => getParamErrorMessage(p, caches) !== null);
+  return (eq.parameters ?? []).some(
+    (p) => getParamErrorMessage(p, caches) !== null,
+  );
 };
 
 export const hasLocalError = (
@@ -187,11 +210,25 @@ export const hasLocalError = (
   workplaceList: EquipmentInstance[],
 ): boolean => {
   if (!eq.enable) return false;
-  if (isParentLinkBroken(eq, definition, moduleList, robots) || isNameError(eq, allEquipment)) {
+  if (
+    isParentLinkBroken(eq, definition, moduleList, robots) ||
+    isNameError(eq, allEquipment)
+  ) {
     return true;
   }
 
-  if (allFieldDefs(definition).some((f) => isFieldError(eq, f.field, definition, caches, allEquipment, workplaceList))) {
+  if (
+    allFieldDefs(definition).some((f) =>
+      isFieldError(
+        eq,
+        f.field,
+        definition,
+        caches,
+        allEquipment,
+        workplaceList,
+      ),
+    )
+  ) {
     return true;
   }
 
@@ -220,14 +257,25 @@ export const getErrorMessage = (
   if (ipAddress !== undefined) {
     if (!ipAddress || ipAddress.trim() === "") return "IP Address required";
     if (caches.ipValidity[eq.id] === false) return "Invalid IP Format";
-    if (isFieldError(eq, "ipAddress", definition, caches, allEquipment, workplaceList)) {
+    if (
+      isFieldError(
+        eq,
+        "ipAddress",
+        definition,
+        caches,
+        allEquipment,
+        workplaceList,
+      )
+    ) {
       return "IP Address must be unique";
     }
   }
 
   if (definition.type === "workplace") {
     if (!eq.jobId || eq.jobId === 0) return "Invalid Job ID (cannot be 0)";
-    if (isFieldError(eq, "jobId", definition, caches, allEquipment, workplaceList)) {
+    if (
+      isFieldError(eq, "jobId", definition, caches, allEquipment, workplaceList)
+    ) {
       return "Duplicate Job ID for this Robot";
     }
   }
@@ -235,26 +283,74 @@ export const getErrorMessage = (
   if (
     definition.type === "camera" &&
     eq.managedByController === true &&
-    isFieldVisible(eq, { field: "managedByController", label: "", type: "boolean" }, caches)
+    isFieldVisible(
+      eq,
+      { field: "managedByController", label: "", type: "boolean" },
+      caches,
+    )
   ) {
     if (
-      isFieldError(eq, "controllerName", definition, caches, allEquipment, workplaceList) ||
-      isFieldError(eq, "controllerId", definition, caches, allEquipment, workplaceList) ||
-      isFieldError(eq, "channel", definition, caches, allEquipment, workplaceList)
+      isFieldError(
+        eq,
+        "controllerName",
+        definition,
+        caches,
+        allEquipment,
+        workplaceList,
+      ) ||
+      isFieldError(
+        eq,
+        "controllerId",
+        definition,
+        caches,
+        allEquipment,
+        workplaceList,
+      ) ||
+      isFieldError(
+        eq,
+        "channel",
+        definition,
+        caches,
+        allEquipment,
+        workplaceList,
+      )
     ) {
       return "Missing Controller Config";
+    }
+  }
+
+  if (definition.type === "axis") {
+    const val = eq.channel;
+    if (
+      val !== null &&
+      val !== undefined &&
+      val !== "" &&
+      isFieldError(
+        eq,
+        "channel",
+        definition,
+        caches,
+        allEquipment,
+        workplaceList,
+      )
+    ) {
+      return "Conflit de Channel sur le Variateur";
     }
   }
 
   const missingField = allFieldDefs(definition).find(
     (f) =>
       (f.type === "select" || f.type === "number") &&
-      eq[f.field] === null &&
+      (eq[f.field] === null ||
+        eq[f.field] === undefined ||
+        eq[f.field] === "") &&
       isFieldVisible(eq, f, caches),
   );
   if (missingField) return `Please select a value for "${missingField.label}"`;
 
-  const badParam = (eq.parameters ?? []).find((p) => getParamErrorMessage(p, caches) !== null);
+  const badParam = (eq.parameters ?? []).find(
+    (p) => getParamErrorMessage(p, caches) !== null,
+  );
   if (badParam) return getParamErrorMessage(badParam, caches)!;
 
   return "Configuration Error";
@@ -270,5 +366,13 @@ export const listHasErrors = (
   workplaceList: EquipmentInstance[],
 ): boolean =>
   list.some((eq) =>
-    hasLocalError(eq, definition, caches, moduleList, robots, allEquipment, workplaceList),
+    hasLocalError(
+      eq,
+      definition,
+      caches,
+      moduleList,
+      robots,
+      allEquipment,
+      workplaceList,
+    ),
   );
