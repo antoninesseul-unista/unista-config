@@ -5,7 +5,7 @@ import type {
 } from "../config/equipment";
 import { CalculationService } from "./wails";
 import type { models } from "../../wailsjs/go/models";
-import { hardwareProvider } from "../services/hardware/hardwareProvider"; // Unification de la source de vérité matérielle
+import { hardwareProvider } from "../services/hardware/hardwareProvider";
 
 export interface ValidationCaches {
   ipValidity: Record<string, boolean>;
@@ -152,46 +152,58 @@ export const isFieldError = (
     }
   }
 
-  // Validation de l'existence de matériel compatible pour les axes (Force la carte en rouge)
-  if (field === "hardwareReference" && definition.type === "axis") {
-    const refs = hardwareProvider.getReferences(
-      (eq.controllerType as string) || "",
-      (eq.driveReference as string) || "",
-    );
-    if (refs.length === 0) return true;
-  }
-
-  // Validation des conflits de canaux pour les axes
-  if (field === "channel" && definition.type === "axis") {
-    if (val === null || val === undefined || val === "") return true;
-
-    if (eq.hardwareReference) {
-      const duplicate = allEquipment.find(
-        (e) =>
-          e.enable &&
-          e.type === "axis" &&
-          e.id !== eq.id &&
-          e.hardwareReference === eq.hardwareReference &&
-          String(e.channel) === String(eq.channel),
+  // Axis-specific validations
+  if (definition.type === "axis") {
+    // Validate hardware compatibility
+    if (field === "hardwareReference") {
+      const refs = hardwareProvider.getReferences(
+        (eq.controllerType as string) || "",
+        (eq.driveReference as string) || "",
       );
-      if (duplicate) return true;
+      if (refs.length === 0) return true;
     }
-  }
 
-  // Validation des conflits de Node Number pour les axes
-  if (field === "nodeNumber" && definition.type === "axis") {
-    if (val === null || val === undefined || val === "") return true;
+    // Validate channel conflict
+    if (field === "channel") {
+      if (val === null || val === undefined || val === "") return true;
 
-    if (eq.hardwareReference) {
-      const duplicateNode = allEquipment.find(
-        (e) =>
-          e.enable &&
-          e.type === "axis" &&
-          e.id !== eq.id &&
-          e.nodeNumber === eq.nodeNumber &&
-          e.hardwareReference !== eq.hardwareReference,
-      );
-      if (duplicateNode) return true;
+      if (eq.hardwareReference) {
+        const duplicate = allEquipment.find(
+          (e) =>
+            e.enable &&
+            e.type === "axis" &&
+            e.id !== eq.id &&
+            e.hardwareReference === eq.hardwareReference &&
+            String(e.channel) === String(eq.channel),
+        );
+        if (duplicate) return true;
+      }
+    }
+
+    // Validate node number conflict across different hardware references
+    if (field === "nodeNumber") {
+      if (val === null || val === undefined || val === "") return true;
+
+      if (eq.hardwareReference) {
+        const duplicateNode = allEquipment.find(
+          (e) =>
+            e.enable &&
+            e.type === "axis" &&
+            e.id !== eq.id &&
+            e.nodeNumber === eq.nodeNumber &&
+            e.hardwareReference !== eq.hardwareReference,
+        );
+        if (duplicateNode) return true;
+      }
+    }
+
+    // Prevent '0' values for default dynamics
+    if (
+      field === "defaultVelocity" ||
+      field === "defaultAcceleration" ||
+      field === "defaultDeceleration"
+    ) {
+      if (val === 0) return true;
     }
   }
 
@@ -221,7 +233,6 @@ export const hasParamsError = (
 ): boolean => {
   if (!eq.enable) return false;
 
-  // Correction TypeScript : Cast explicite du tableau pour éviter le type 'any' implicite
   const params = (eq.parameters as models.Parameter[]) ?? [];
   return params.some(
     (p: models.Parameter) => getParamErrorMessage(p, caches) !== null,
@@ -347,7 +358,7 @@ export const getErrorMessage = (
     }
   }
 
-  // Priorité absolue aux contraintes de l'équipement de type Axis
+  // Axis priority checks
   if (definition.type === "axis") {
     const refs = hardwareProvider.getReferences(
       (eq.controllerType as string) || "",
@@ -392,7 +403,18 @@ export const getErrorMessage = (
         workplaceList,
       )
     ) {
-      return "Conflit de Channel sur le Variateur";
+      return "Channel conflict on this Drive";
+    }
+
+    // New specific checks preventing '0' on dynamic defaults
+    if (eq.defaultVelocity === 0) {
+      return "Default Velocity cannot be 0";
+    }
+    if (eq.defaultAcceleration === 0) {
+      return "Default Acceleration cannot be 0";
+    }
+    if (eq.defaultDeceleration === 0) {
+      return "Default Deceleration cannot be 0";
     }
   }
 
@@ -406,7 +428,6 @@ export const getErrorMessage = (
   );
   if (missingField) return `Please select a value for "${missingField.label}"`;
 
-  // Correction TypeScript : Cast explicite pour la recherche de paramètres invalides
   const params = (eq.parameters as models.Parameter[]) ?? [];
   const badParam = params.find(
     (p: models.Parameter) => getParamErrorMessage(p, caches) !== null,
