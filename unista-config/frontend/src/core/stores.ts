@@ -1,9 +1,21 @@
+// filepath: src/core/stores.ts
 import { computed, ref, toRef, watch } from "vue";
 import { models } from "../../wailsjs/go/models";
 import { toast } from "../composables/useToast";
-import type { ConfigField, EquipmentDefinition, EquipmentInstance, PageDefinition } from "../config/equipment";
+import type {
+  ConfigField,
+  EquipmentDefinition,
+  EquipmentInstance,
+  PageDefinition,
+} from "../config/equipment";
 import { createCycleParams } from "./defaults";
-import { generateId, makeCleanParams, makeModule, makeParam, reindex } from "./helpers";
+import {
+  generateId,
+  makeCleanParams,
+  makeModule,
+  makeParam,
+  reindex,
+} from "./helpers";
 import { appState } from "./state";
 import { buildValidationCaches, listHasErrors } from "./validation";
 import { equipmentRegistry, pageRegistry } from "./registry";
@@ -44,7 +56,9 @@ export const getModuleErrors = computed(() => {
         acc[m.id] = false;
         return acc;
       }
-      const isDup = active.some((other) => other.id !== m.id && other.name === m.name);
+      const isDup = active.some(
+        (other) => other.id !== m.id && other.name === m.name,
+      );
       acc[m.id] = !m.name || m.name.trim() === "" || isDup;
       return acc;
     },
@@ -59,10 +73,19 @@ export const getModuleErrorMessage = (m: models.MachineModule) => {
 
 // --- Process buttons ---
 
-const createButtonParams = (prefix: string, count: number): models.Parameter[] =>
-  Array.from({ length: count }, (_, i) => makeParam(`${prefix} ${i + 1}`, i + 1) as models.Parameter);
+const createButtonParams = (
+  prefix: string,
+  count: number,
+): models.Parameter[] =>
+  Array.from(
+    { length: count },
+    (_, i) => makeParam(`${prefix} ${i + 1}`, i + 1) as models.Parameter,
+  );
 
-const createButtonEntity = (linkedTo: string, name: string): models.ButtonEntity =>
+const createButtonEntity = (
+  linkedTo: string,
+  name: string,
+): models.ButtonEntity =>
   ({
     id: generateId(),
     linkedTo,
@@ -92,8 +115,12 @@ const syncProcessButtons = () => {
 watch(modules, syncProcessButtons, { deep: true, immediate: true });
 
 export const activeProcessButtons = computed(() => {
-  const activeModIds = new Set(modules.value.filter((m) => m.enable).map((m) => m.id));
-  const visible = allButtons.value.filter((b) => b.linkedTo === "UM" || activeModIds.has(b.linkedTo));
+  const activeModIds = new Set(
+    modules.value.filter((m) => m.enable).map((m) => m.id),
+  );
+  const visible = allButtons.value.filter(
+    (b) => b.linkedTo === "UM" || activeModIds.has(b.linkedTo),
+  );
 
   return visible.sort((a, b) => {
     if (a.linkedTo === "UM") return -1;
@@ -106,7 +133,11 @@ export const activeProcessButtons = computed(() => {
 
 // --- Cycle buttons ---
 
-const createCycleButtonEntity = (linkedTo: string, name: string, emIndex: number): models.CycleButtonEntity =>
+const createCycleButtonEntity = (
+  linkedTo: string,
+  name: string,
+  emIndex: number,
+): models.CycleButtonEntity =>
   ({
     id: generateId(),
     linkedTo,
@@ -120,7 +151,9 @@ export const allCycleButtons = toRef(appState, "cycleButtons");
 const syncCycleButtons = () => {
   modules.value.forEach((m) => {
     if (m.enable && !allCycleButtons.value.some((b) => b.linkedTo === m.id)) {
-      allCycleButtons.value.push(createCycleButtonEntity(m.id, `EM${m.index}`, m.index));
+      allCycleButtons.value.push(
+        createCycleButtonEntity(m.id, `EM${m.index}`, m.index),
+      );
     }
   });
 
@@ -133,8 +166,12 @@ const syncCycleButtons = () => {
 watch(modules, syncCycleButtons, { deep: true, immediate: true });
 
 export const activeCycleButtons = computed(() => {
-  const activeModIds = new Set(modules.value.filter((m) => m.enable).map((m) => m.id));
-  const visible = allCycleButtons.value.filter((b) => activeModIds.has(b.linkedTo));
+  const activeModIds = new Set(
+    modules.value.filter((m) => m.enable).map((m) => m.id),
+  );
+  const visible = allCycleButtons.value.filter((b) =>
+    activeModIds.has(b.linkedTo),
+  );
 
   return visible.sort((a, b) => {
     const modA = modules.value.find((m) => m.id === a.linkedTo);
@@ -167,7 +204,9 @@ export const equipmentCategories = computed({
 });
 
 export const faultGroups = computed<models.FaultGroup[]>(() => {
-  const activeModIndexes = new Set(modules.value.filter((m) => m.enable).map((m) => m.index));
+  const activeModIndexes = new Set(
+    modules.value.filter((m) => m.enable).map((m) => m.index),
+  );
 
   const activeProcessCats = appState.faultCategories.process.filter((cat) => {
     if (cat.name.startsWith("UM")) return true;
@@ -206,13 +245,18 @@ const errorsByType = ref<Record<string, boolean>>({});
 let refreshScheduled = false;
 
 const refreshAllEquipmentErrors = async () => {
-  const allEquipment = Object.values(appState.equipment).flat() as EquipmentInstance[];
+  const allEquipment = Object.values(
+    appState.equipment,
+  ).flat() as EquipmentInstance[];
   const robots = (appState.equipment.robot ?? []) as EquipmentInstance[];
-  const workplaces = (appState.equipment.workplace ?? []) as EquipmentInstance[];
+  const workplaces = (appState.equipment.workplace ??
+    []) as EquipmentInstance[];
   const next: Record<string, boolean> = {};
 
   for (const type of Object.keys(equipmentRegistry.value)) {
-    const def = equipmentRegistry.value[type] as EquipmentDefinition | undefined;
+    const def = equipmentRegistry.value[type] as
+      | EquipmentDefinition
+      | undefined;
     const list = (appState.equipment[type] ?? []) as EquipmentInstance[];
     if (!def) {
       next[type] = false;
@@ -242,10 +286,14 @@ const scheduleRefreshAllEquipmentErrors = () => {
   });
 };
 
-watch([() => appState.equipment, modules, equipmentRegistry], scheduleRefreshAllEquipmentErrors, {
-  deep: true,
-  immediate: true,
-});
+watch(
+  [() => appState.equipment, modules, equipmentRegistry],
+  scheduleRefreshAllEquipmentErrors,
+  {
+    deep: true,
+    immediate: true,
+  },
+);
 
 const resolveDefaultValue = (field: ConfigField): any => {
   if (field.defaultValue !== undefined) return field.defaultValue;
@@ -257,7 +305,8 @@ const resolveDefaultValue = (field: ConfigField): any => {
 };
 
 export function createEquipmentStore(type: string) {
-  const getDefinition = () => equipmentRegistry.value[type] as EquipmentDefinition;
+  const getDefinition = () =>
+    equipmentRegistry.value[type] as EquipmentDefinition;
 
   const createInstance = (index: number): EquipmentInstance => {
     const def = getDefinition();
@@ -284,30 +333,35 @@ export function createEquipmentStore(type: string) {
         showProcess: false,
         showParams: false,
       },
-      parameters: (def.parameterFields || []).map((field: ConfigField, i: number) => {
-        const defaultValue = resolveDefaultValue(field);
-        return {
-          id: i + 1,
-          name: field.label,
-          actif: field.type === "boolean" ? (defaultValue as boolean) : true,
-          commentFr: "",
-          commentEn: "",
-          commentDe: "",
-          commentEs: "",
-          detail: "",
-          reserve1: "",
-          reserve2: "",
-          robotMask: "",
-          robotVarIndex: {},
-          value: defaultValue,
-        } as models.Parameter;
-      }),
+      parameters: (def.parameterFields || []).map(
+        (field: ConfigField, i: number) => {
+          const defaultValue = resolveDefaultValue(field);
+          return {
+            id: i + 1,
+            name: field.label,
+            actif: field.type === "boolean" ? (defaultValue as boolean) : true,
+            commentFr: "",
+            commentEn: "",
+            commentDe: "",
+            commentEs: "",
+            detail: "",
+            reserve1: "",
+            reserve2: "",
+            robotMask: "",
+            robotVarIndex: {},
+            value: defaultValue,
+          } as models.Parameter;
+        },
+      ),
       ...Object.fromEntries(
         [
           ...(def.configFields || []),
           ...(def.controllerFields || []),
           ...(def.processFields || []),
-        ].map((field: ConfigField) => [field.field, resolveDefaultValue(field)]),
+        ].map((field: ConfigField) => [
+          field.field,
+          resolveDefaultValue(field),
+        ]),
       ),
     } as unknown as EquipmentInstance;
 
@@ -323,7 +377,9 @@ export function createEquipmentStore(type: string) {
 
   const addAction = (): void => {
     if (!appState.equipment[type]) appState.equipment[type] = [];
-    appState.equipment[type].push(createInstance(appState.equipment[type].length + 1));
+    appState.equipment[type].push(
+      createInstance(appState.equipment[type].length + 1),
+    );
     reindex(appState.equipment[type]);
   };
 
@@ -381,13 +437,18 @@ const pageStoreMap: PageStoresMap = {};
 export function createPageStore(type: string) {
   const getDefinition = () => pageRegistry.value[type] as PageDefinition;
 
+  // Les pages singletons récupèrent directement leur label au lieu de l'index dynamique
+  const isSingleton = ["process", "setting", "info"].includes(type);
+
   const createInstance = (index: number, open = false): models.MachinePage =>
     ({
       id: generateId(),
       index,
       enable: true,
       isEM: false,
-      name: `${getDefinition().prefix}${index}`,
+      name: isSingleton
+        ? getDefinition().label
+        : `${getDefinition().prefix}${index}`,
       commentFr: "",
       commentEn: "",
       commentDe: "",
@@ -419,7 +480,9 @@ export function createPageStore(type: string) {
     const def = getDefinition();
     if (!appState.pages[type]) appState.pages[type] = [];
     if (appState.pages[type].length >= def.maxSlots) return;
-    appState.pages[type].push(createInstance(appState.pages[type].length + 1, true));
+    appState.pages[type].push(
+      createInstance(appState.pages[type].length + 1, true),
+    );
     reindex(appState.pages[type]);
   };
 
@@ -449,7 +512,9 @@ export function createPageStore(type: string) {
           return acc;
         }
         const isEmpty = !item.name || item.name.trim() === "";
-        const isDuplicate = activeItems.some((p) => p.id !== item.id && p.name === item.name);
+        const isDuplicate = activeItems.some(
+          (p) => p.id !== item.id && p.name === item.name,
+        );
         acc[item.id] = isEmpty || isDuplicate;
         return acc;
       },
@@ -462,7 +527,9 @@ export function createPageStore(type: string) {
     return "Name must be unique";
   };
 
-  const hasErrors = computed(() => Object.values(getErrors.value).some((v) => v));
+  const hasErrors = computed(() =>
+    Object.values(getErrors.value).some((v) => v),
+  );
 
   return {
     get definition(): PageDefinition {
@@ -484,6 +551,25 @@ export function initPageStores(): void {
   }
   for (const key of Object.keys(pageRegistry.value)) {
     pageStoreMap[key] = createPageStore(key);
+  }
+
+  // Force automatic and silent creation of the single instance if the array is empty
+  const singletons = ["process", "setting", "info"];
+  for (const key of singletons) {
+    if (pageRegistry.value[key]) {
+      if (!appState.pages[key]) {
+        appState.pages[key] = [];
+      }
+
+      if (appState.pages[key].length === 0) {
+        // If empty, create the page with the correct name
+        pageStoreMap[key].addAction();
+      } else {
+        // If an old page already exists (e.g., PRC1), force its renaming
+        // with the official label (e.g., Process, Setting, Info) to fix legacy data
+        appState.pages[key][0].name = pageRegistry.value[key].label;
+      }
+    }
   }
 }
 

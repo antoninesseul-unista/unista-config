@@ -1,6 +1,10 @@
 <template>
-  <div class="pt-4 pb-8 h-full flex flex-col w-full overflow-hidden relative bg-gray-50/50">
-    <div class="flex flex-row gap-5 overflow-x-auto pb-8 pt-2 px-5 flex-1 items-start">
+  <div
+    class="pt-4 pb-8 h-full flex flex-col w-full overflow-hidden relative bg-gray-50/50"
+  >
+    <div
+      class="flex flex-row gap-5 overflow-x-auto pb-8 pt-2 px-5 flex-1 items-start"
+    >
       <DashboardCard
         v-for="(entity, idx) in entities"
         :key="entity.id"
@@ -8,23 +12,45 @@
         :bodyClass="bodyClass"
       >
         <template #header>
-          <div class="flex flex-col pointer-events-none">
-            <span class="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1">{{
-              headerSubtitle
-            }}</span>
-            <div class="h-5 flex items-center">
-              <span class="text-base font-bold text-gray-900 font-mono leading-none">{{
-                entity.name
-              }}</span>
+          <div class="flex flex-col pointer-events-none max-w-[200px]">
+            <span
+              class="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-1"
+            >
+              {{
+                typeof headerSubtitle === "function"
+                  ? headerSubtitle(entity)
+                  : headerSubtitle
+              }}
+            </span>
+            <div class="h-5 flex items-center mb-1">
+              <span
+                class="text-base font-bold text-gray-900 font-mono leading-none"
+              >
+                {{
+                  typeof headerTitle === "function"
+                    ? headerTitle(entity)
+                    : entity.name
+                }}
+              </span>
             </div>
+            <p
+              v-if="entity.detail"
+              class="text-[10px] text-gray-400 leading-normal font-medium italic"
+            >
+              {{ entity.detail }}
+            </p>
           </div>
         </template>
         <template #headerRight>
-          <span :class="['text-xs font-bold px-2 py-0.5 rounded-full', badgeClass]">{{
-            badgeLabel
-          }}</span>
+          <span
+            :class="['text-xs font-bold px-2 py-0.5 rounded-full', badgeClass]"
+            >{{
+              typeof badgeLabel === "function" ? badgeLabel(entity) : badgeLabel
+            }}</span
+          >
         </template>
-        <div>
+
+        <div class="flex flex-col gap-2">
           <CollapsibleSection
             v-for="section in sections"
             :key="section.key"
@@ -32,7 +58,10 @@
             v-model="(entity.ui as any)[section.toggleKey]"
           >
             <template #icon>
-              <span v-if="section.colorDot" :class="['w-2 h-2 rounded-full', section.colorDot]" />
+              <span
+                v-if="section.colorDot"
+                :class="['w-2 h-2 rounded-full', section.colorDot]"
+              />
               <AppIcon
                 v-else-if="section.icon ?? section.iconSvg"
                 :name="section.icon ?? section.iconSvg!"
@@ -94,13 +123,19 @@ export interface DashboardParamSection {
   iconClass?: string;
 }
 
+// filepath: src/components/DashboardParameterEditor.vue
+
 const props = withDefaults(
   defineProps<{
-    entities: Array<{ id: string; name: string; ui: Record<string, boolean> } & Record<string, unknown>>;
+    // CHANGE HERE: Replaced 'Record<string, boolean>' with 'any', and 'unknown' with 'any'
+    entities: Array<
+      { id: string; name: string; ui: any } & Record<string, any>
+    >;
     sections: DashboardParamSection[];
     contextLabel: string;
-    headerSubtitle?: string;
-    badgeLabel?: string;
+    headerSubtitle?: string | ((entity: Record<string, any>) => string);
+    headerTitle?: string | ((entity: Record<string, any>) => string);
+    badgeLabel?: string | ((entity: Record<string, any>) => string);
     badgeClass?: string;
     widthClass?: string;
     bodyClass?: string;
@@ -135,17 +170,27 @@ const {
   },
 );
 
-const sectionLabel = (entity: Record<string, unknown>, section: DashboardParamSection) =>
-  section.labelField ? String(entity[section.labelField] ?? section.label) : section.label;
+const sectionLabel = (
+  entity: Record<string, unknown>,
+  section: DashboardParamSection,
+) =>
+  section.labelField
+    ? String(entity[section.labelField] ?? section.label)
+    : section.label;
 
 const sidebarContext = computed(() => {
   if (!activeParam.value || selectedEntityIdx.value === null) return "";
   return `${props.contextLabel}: ${props.entities[selectedEntityIdx.value]?.name ?? ""}`;
 });
 
-const getActiveCount = (params: models.Parameter[]) => countActive(params ?? []);
+const getActiveCount = (params: models.Parameter[]) =>
+  countActive(params ?? []);
 
-const openSidebar = (entityIdx: number, sectionKey: string, paramIdx: number) => {
+const openSidebar = (
+  entityIdx: number,
+  sectionKey: string,
+  paramIdx: number,
+) => {
   selectedSectionKey.value = sectionKey;
   openBase(entityIdx, paramIdx);
 };

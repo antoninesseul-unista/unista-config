@@ -1,3 +1,4 @@
+// filepath: src/components/Sidebar.vue
 <template>
   <aside
     class="w-64 h-screen bg-[#fbfbfa] border-r border-gray-200 flex flex-col"
@@ -184,10 +185,10 @@
           >Production Logic</span
         >
       </div>
+
       <RouterLink
-        v-for="(def, key) in pageRegistry"
-        :key="key"
-        :to="{ name: 'page', params: { type: key as string } }"
+        v-if="pageRegistry['product']"
+        :to="{ name: 'page', params: { type: 'product' } }"
         custom
         v-slot="{ href, navigate, isActive }"
       >
@@ -199,12 +200,35 @@
             linkClass(isActive),
           ]"
         >
-          <AppIcon :name="def.menuIcon ?? 'file'" :size="16" class="shrink-0" />
-          {{ def.label }}
+          <AppIcon
+            :name="pageRegistry['product'].menuIcon ?? 'file'"
+            :size="16"
+            class="shrink-0"
+          />
+          {{ pageRegistry["product"].label }}
           <span
-            v-if="pageStores[key as keyof typeof pageStores]?.hasErrors.value"
+            v-if="pageStores['product']?.hasErrors.value"
             class="error-dot"
           ></span>
+        </a>
+      </RouterLink>
+
+      <RouterLink
+        :to="{ name: 'machineLogic' }"
+        custom
+        v-slot="{ href, navigate, isActive }"
+      >
+        <a
+          :href="href"
+          @click="navigate"
+          :class="[
+            'flex items-center gap-3 px-3 py-1.5 rounded-md text-sm transition-colors cursor-pointer',
+            linkClass(isActive),
+          ]"
+        >
+          <AppIcon name="cpu" :size="16" class="shrink-0" />
+          Machine Logic
+          <span v-if="hasMachineLogicErrors" class="error-dot"></span>
         </a>
       </RouterLink>
 
@@ -255,9 +279,6 @@ import {
 
 const { equipment: equipmentStores, pages: pageStores } = useConfigStore();
 
-/**
- * Type definitions for internal navigation structures.
- */
 type NavItem = {
   label: string;
   to: { name: string };
@@ -265,9 +286,6 @@ type NavItem = {
   showsModuleError?: boolean;
 };
 
-/**
- * Handles the logic for importing configuration data.
- */
 const handleImport = async () => {
   try {
     const result = await PersistenceService.importConfig();
@@ -282,9 +300,6 @@ const handleImport = async () => {
   }
 };
 
-/**
- * Handles the logic for exporting configuration data.
- */
 const handleExport = async () => {
   try {
     const result = await PersistenceService.exportConfig();
@@ -300,11 +315,7 @@ const handleExport = async () => {
   }
 };
 
-/**
- * Handles the logic for generating ST files.
- */
 const handleGenerate = async () => {
-  // Guard clause: prevent generation if errors exist
   if (hasGlobalErrors.value) {
     toast.error("Generation blocked", {
       description: "Please fix configuration errors before generating.",
@@ -325,7 +336,6 @@ const handleGenerate = async () => {
   }
 };
 
-// Compute navigation items mappings
 const byRouteName = computed(() => {
   const all = [
     ...NAV_SECTIONS.global,
@@ -334,20 +344,14 @@ const byRouteName = computed(() => {
   return Object.fromEntries(all.map((item) => [item.to.name, item]));
 });
 
-// Fallback navigation generator to prevent missing routes from crashing the UI
 const mustItem = (name: string) => {
   const item = byRouteName.value[name];
   if (!item) {
-    return {
-      label: name,
-      to: { name },
-      icon: "plus", // Default icon
-    };
+    return { label: name, to: { name }, icon: "plus" };
   }
   return item;
 };
 
-// Map items to specific categories
 const setupItems = computed<NavItem[]>(() => [
   mustItem("general"),
   mustItem("systemConstants"),
@@ -369,25 +373,28 @@ const runtimeItems = computed<NavItem[]>(() => [
   mustItem("messageBox"),
 ]);
 
-// Error checking specific to modules
 const hasModuleErrors = computed(() =>
   Object.values(getModuleErrors.value).some((v) => v),
 );
 
-// Calculate global error state across all domains to lock the generation button
-// Calculate global error state across all domains to lock the generation button
+// Specifically tracks errors strictly within our grouped Logic page
+const hasMachineLogicErrors = computed(() => {
+  return (
+    pageStores["process"]?.hasErrors.value ||
+    pageStores["setting"]?.hasErrors.value ||
+    pageStores["info"]?.hasErrors.value
+  );
+});
+
 const hasGlobalErrors = computed((): boolean => {
-  // 1. Check modules
   if (hasModuleErrors.value) return true;
 
-  // 2. Check all equipment configurations using the registry keys
   for (const key of Object.keys(equipmentRegistry.value)) {
     if (equipmentStores[key as keyof typeof equipmentStores]?.hasErrors.value) {
       return true;
     }
   }
 
-  // 3. Check all page configurations using the registry keys
   for (const key of Object.keys(pageRegistry.value)) {
     if (pageStores[key as keyof typeof pageStores]?.hasErrors.value) {
       return true;
@@ -397,7 +404,6 @@ const hasGlobalErrors = computed((): boolean => {
   return false;
 });
 
-// Dynamic styling logic for active links
 const linkClass = (isActive: boolean) =>
   isActive
     ? "bg-blue-50 text-blue-700 font-semibold"

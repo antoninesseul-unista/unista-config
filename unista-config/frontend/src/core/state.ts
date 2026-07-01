@@ -266,6 +266,19 @@ function applyAppData(data: models.AppData, mode: "merge" | "replace"): void {
         }
       }
     }
+
+    // --- NOUVEAU CORRECTIF : Forcer le nommage immédiatement après le chargement du disque ---
+    const singletons = ["process", "setting", "info"];
+    for (const key of singletons) {
+      if (
+        appState.pages[key] &&
+        appState.pages[key].length > 0 &&
+        pageRegistry.value[key]
+      ) {
+        appState.pages[key][0].name = pageRegistry.value[key].label;
+      }
+    }
+    // -----------------------------------------------------------------------------------------
   } else if (replace) {
     replaceRecordInPlace(
       appState.pages,

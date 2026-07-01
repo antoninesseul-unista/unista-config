@@ -8,13 +8,13 @@ import FaultsView from "../views/FaultsView.vue";
 import GeneralConfig from "../views/GeneralConfig.vue";
 import GenericEquipmentView from "../views/GenericEquipmentView.vue";
 import GenericPageView from "../views/GenericPageView.vue";
+import MachineLogicView from "../views/MachineLogicView.vue"; // Nouvel import
 import MessageBoxView from "../views/MessageBoxView.vue";
 import ModuleView from "../views/Module.vue";
 import ProcessButtonsView from "../views/ProcessButtonsView.vue";
 import RoleManagement from "../views/RoleManagement.vue";
 import SystemConstantsView from "../views/SystemConstantsView.vue";
 import TranslationView from "../views/TranslationView.vue";
-// Import the new updater view
 import UpdaterView from "../views/UpdaterView.vue";
 
 const APP_TITLE = "Unista Config";
@@ -60,15 +60,12 @@ export const router = createRouter({
       component: RoleManagement,
       meta: { title: "Role Management" },
     },
-
-    // New route for system updates
     {
       path: "/updates",
       name: "updates",
       component: UpdaterView,
       meta: { title: "System Updates" },
     },
-
     {
       path: "/module",
       name: "module",
@@ -99,14 +96,25 @@ export const router = createRouter({
       component: MessageBoxView,
       meta: { title: "Message Boxes" },
     },
-
+    {
+      path: "/machine-logic",
+      name: "machineLogic",
+      component: MachineLogicView,
+      meta: { title: "Machine Logic" },
+    },
     {
       path: "/pages/:type",
       name: "page",
       component: GenericPageView,
       props: (route) => ({ type: route.params.type }),
-      beforeEnter: (to) =>
-        pageRegistry.value[String(to.params.type)] ? true : "/general",
+      beforeEnter: (to) => {
+        const t = String(to.params.type);
+        // Protection des singletons
+        if (["process", "setting", "info"].includes(t)) {
+          return "/machine-logic";
+        }
+        return pageRegistry.value[t] ? true : "/general";
+      },
       meta: { title: "Page" },
     },
     {

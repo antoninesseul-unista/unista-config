@@ -1644,20 +1644,23 @@ const setNumber = (field: string, event: Event): void => {
 const refreshHardware = async () => {
   try {
     const modules = await HardwareService.autoLoadHardware();
+
     if (modules && modules.length > 0) {
       appState.detectedHardware = modules;
-      toast.success("Hardware rafraîchi", {
-        description: `${modules.length} modules détectés.`,
+
+      toast.success("Hardware refreshed", {
+        description: `${modules.length} module(s) detected.`,
       });
     } else {
-      toast.warning("Aucun hardware", {
-        description: "Fichier Hardware.hw introuvable ou vide.",
+      toast.warning("No hardware found", {
+        description: "Hardware.hw file not found or is empty.",
       });
     }
   } catch (err) {
     console.error("Hardware refresh failed:", err);
-    toast.error("Erreur de rafraîchissement", {
-      description: "Impossible d'analyser le fichier.",
+
+    toast.error("Hardware refresh failed", {
+      description: "Unable to parse the Hardware.hw file.",
     });
   }
 };
