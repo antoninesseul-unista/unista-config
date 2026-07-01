@@ -487,7 +487,6 @@ export function createPageStore(type: string) {
   };
 
   const removeAction = (index: number) => {
-    if (!confirm(`Remove this ${getDefinition().label}?`)) return;
     try {
       const item = appState.pages[type][index];
       const label = item?.name ?? getDefinition().label;
