@@ -133,16 +133,34 @@
         <div class="grid grid-cols-2 gap-2">
           <div>
             <label
-              class="block text-[11px] font-bold uppercase tracking-wider mb-1 text-gray-500"
+              :class="[
+                'block text-[11px] font-bold uppercase tracking-wider mb-1',
+                hasError('nodeNumber') ? 'text-red-600' : 'text-gray-500',
+              ]"
               >Node Number</label
             >
             <input
               type="number"
               :value="axis.nodeNumber ?? ''"
-              placeholder="Auto from HW"
+              placeholder="HW Default"
               disabled
-              class="w-full px-2 py-1.5 border border-gray-200 bg-gray-100 rounded-md text-sm font-mono text-gray-400 cursor-not-allowed"
+              :class="[
+                'w-full px-2 py-1.5 border rounded-md text-sm font-mono outline-none',
+                hasError('nodeNumber')
+                  ? 'border-red-400 bg-red-50 text-red-900 cursor-not-allowed'
+                  : 'border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed',
+              ]"
             />
+            <p
+              v-if="
+                hasError('nodeNumber') &&
+                axis.nodeNumber != null &&
+                axis.nodeNumber !== ''
+              "
+              class="text-[10px] text-red-500 font-medium mt-1 leading-tight"
+            >
+              Conflict: Node number in use by different hardware.
+            </p>
           </div>
           <div>
             <label
@@ -154,12 +172,14 @@
             >
             <select
               v-model="axis.channel"
-              :disabled="!axis.hardwareReference || availableChannels.length === 0"
+              :disabled="
+                !axis.hardwareReference || availableChannels.length === 0
+              "
               :class="[
                 'w-full px-2 py-1.5 border rounded-md text-sm font-mono outline-none transition-colors',
                 hasError('channel')
                   ? 'border-red-400 bg-red-50 text-red-900 focus:ring-red-500'
-                  : (!axis.hardwareReference || availableChannels.length === 0)
+                  : !axis.hardwareReference || availableChannels.length === 0
                     ? 'border-gray-200 cursor-not-allowed bg-gray-100 text-gray-500'
                     : 'border-gray-200 bg-white focus:ring-1 focus:ring-blue-500',
               ]"
@@ -170,10 +190,14 @@
               </option>
             </select>
             <p
-              v-if="hasError('channel') && axis.channel != null && axis.channel !== ''"
+              v-if="
+                hasError('channel') &&
+                axis.channel != null &&
+                axis.channel !== ''
+              "
               class="text-[10px] text-red-500 font-medium mt-1 leading-tight"
             >
-              Conflit : ce canal est déjà utilisé sur ce variateur.
+              Channel already in use by another axis.
             </p>
           </div>
         </div>

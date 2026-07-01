@@ -1,6 +1,11 @@
 import { computed, ref, watch, type ComputedRef } from "vue";
-import type { ConfigField, EquipmentDefinition, EquipmentInstance } from "../config/equipment";
+import type {
+  ConfigField,
+  EquipmentDefinition,
+  EquipmentInstance,
+} from "../config/equipment";
 import { equipmentStores, createEquipmentStore, modules } from "../core/stores";
+import { appState } from "../core/state"; // Import de l'état réactif global pour éviter le bug du Proxy
 import type { models } from "../../wailsjs/go/models";
 import {
   buildValidationCaches,
@@ -25,11 +30,14 @@ const emptyCaches = (): ValidationCaches => ({
 
 export function useEquipmentValidation(store: ComputedRef<EquipmentStore>) {
   const robotsList = computed(() => equipmentStores.robot?.list.value ?? []);
-  const workplaceList = computed(() => equipmentStores.workplace?.list.value ?? []);
+  const workplaceList = computed(
+    () => equipmentStores.workplace?.list.value ?? [],
+  );
 
+  // Extraction sécurisée depuis l'état réactif brut pour garantir la détection des doublons croisés
   const allEquipmentList = computed(() =>
-    Object.values(equipmentStores)
-      .map((s) => s?.list.value ?? [])
+    Object.values(appState.equipment)
+      .map((list) => list ?? [])
       .flat(),
   );
 
@@ -70,7 +78,8 @@ export function useEquipmentValidation(store: ComputedRef<EquipmentStore>) {
   const checkParamErrorMessage = (param: models.Parameter) =>
     getParamErrorMessage(param, caches.value);
 
-  const checkParamsError = (eq: EquipmentInstance) => hasParamsError(eq, caches.value);
+  const checkParamsError = (eq: EquipmentInstance) =>
+    hasParamsError(eq, caches.value);
 
   const checkLocalError = (eq: EquipmentInstance) => {
     const def = definition.value;

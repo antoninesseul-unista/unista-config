@@ -5,6 +5,7 @@ import type {
 } from "../config/equipment";
 import { CalculationService } from "./wails";
 import type { models } from "../../wailsjs/go/models";
+import { hardwareProvider } from "../services/hardware/hardwareProvider"; // Unification de la source de vérité matérielle
 
 export interface ValidationCaches {
   ipValidity: Record<string, boolean>;
@@ -131,7 +132,6 @@ export const isFieldError = (
   const cfg = allFieldDefs(definition).find((f) => f.field === field);
   const val = eq[field];
 
-  // CORRECTION MAJEURE: On intercepte null, undefined et "" (chaîne vide)
   if (
     cfg &&
     (cfg.type === "select" || cfg.type === "number") &&
@@ -152,12 +152,20 @@ export const isFieldError = (
     }
   }
 
+  // Validation de l'existence de matériel compatible pour les axes (Force la carte en rouge)
+  if (field === "hardwareReference" && definition.type === "axis") {
+    const refs = hardwareProvider.getReferences(
+      (eq.controllerType as string) || "",
+      (eq.driveReference as string) || "",
+    );
+    if (refs.length === 0) return true;
+  }
+
   // Validation des conflits de canaux pour les axes
   if (field === "channel" && definition.type === "axis") {
     if (val === null || val === undefined || val === "") return true;
 
     if (eq.hardwareReference) {
-      // Cherche s'il existe un autre axe actif utilisant le même hardware et le même canal
       const duplicate = allEquipment.find(
         (e) =>
           e.enable &&
@@ -167,6 +175,23 @@ export const isFieldError = (
           String(e.channel) === String(eq.channel),
       );
       if (duplicate) return true;
+    }
+  }
+
+  // Validation des conflits de Node Number pour les axes
+  if (field === "nodeNumber" && definition.type === "axis") {
+    if (val === null || val === undefined || val === "") return true;
+
+    if (eq.hardwareReference) {
+      const duplicateNode = allEquipment.find(
+        (e) =>
+          e.enable &&
+          e.type === "axis" &&
+          e.id !== eq.id &&
+          e.nodeNumber === eq.nodeNumber &&
+          e.hardwareReference !== eq.hardwareReference,
+      );
+      if (duplicateNode) return true;
     }
   }
 
@@ -195,8 +220,11 @@ export const hasParamsError = (
   caches: ValidationCaches,
 ): boolean => {
   if (!eq.enable) return false;
-  return (eq.parameters ?? []).some(
-    (p) => getParamErrorMessage(p, caches) !== null,
+
+  // Correction TypeScript : Cast explicite du tableau pour éviter le type 'any' implicite
+  const params = (eq.parameters as models.Parameter[]) ?? [];
+  return params.some(
+    (p: models.Parameter) => getParamErrorMessage(p, caches) !== null,
   );
 };
 
@@ -319,12 +347,42 @@ export const getErrorMessage = (
     }
   }
 
+  // Priorité absolue aux contraintes de l'équipement de type Axis
   if (definition.type === "axis") {
-    const val = eq.channel;
+    const refs = hardwareProvider.getReferences(
+      (eq.controllerType as string) || "",
+      (eq.driveReference as string) || "",
+    );
+    if (refs.length === 0) {
+      return "No compatible hardware found in the configuration.";
+    }
+
+    if (!eq.hardwareReference || eq.hardwareReference === "") {
+      return 'Please select a value for "Hardware Reference"';
+    }
+
+    const valNode = eq.nodeNumber;
     if (
-      val !== null &&
-      val !== undefined &&
-      val !== "" &&
+      valNode !== null &&
+      valNode !== undefined &&
+      valNode !== "" &&
+      isFieldError(
+        eq,
+        "nodeNumber",
+        definition,
+        caches,
+        allEquipment,
+        workplaceList,
+      )
+    ) {
+      return "Duplicate Node Number across different Hardware References";
+    }
+
+    const valChan = eq.channel;
+    if (
+      valChan !== null &&
+      valChan !== undefined &&
+      valChan !== "" &&
       isFieldError(
         eq,
         "channel",
@@ -348,8 +406,10 @@ export const getErrorMessage = (
   );
   if (missingField) return `Please select a value for "${missingField.label}"`;
 
-  const badParam = (eq.parameters ?? []).find(
-    (p) => getParamErrorMessage(p, caches) !== null,
+  // Correction TypeScript : Cast explicite pour la recherche de paramètres invalides
+  const params = (eq.parameters as models.Parameter[]) ?? [];
+  const badParam = params.find(
+    (p: models.Parameter) => getParamErrorMessage(p, caches) !== null,
   );
   if (badParam) return getParamErrorMessage(badParam, caches)!;
 

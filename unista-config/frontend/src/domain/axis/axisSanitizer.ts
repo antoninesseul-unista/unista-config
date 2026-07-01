@@ -122,17 +122,35 @@ export class AxisSanitizer {
   public static onDriveChange(axis: any): void {
     if (!axis) return;
 
+    // Update compatible motors based on the selected drive
     const motors = AxisRuleProvider.getAvailableMotors(
       axis.controllerType || "",
       axis.driveReference || "",
     );
     this.sanitizeChoice(axis, "motorReference", motors);
 
+    // Update compatible homing types based on the selected drive
     const homings = AxisRuleProvider.getAvailableHomingTypes(
       axis.controllerType || "",
       axis.driveReference || "",
     );
     this.sanitizeChoice(axis, "homingType", homings);
+
+    // Fetch and validate compatible hardware references for the new drive
+    const hardwares = hardwareProvider.getReferences(
+      axis.controllerType || "",
+      axis.driveReference || "",
+    );
+    this.sanitizeChoice(axis, "hardwareReference", hardwares);
+
+    // Clear dependent hardware fields if the current hardware is no longer compatible
+    if (!axis.hardwareReference) {
+      axis.nodeNumber = null;
+      axis.channel = null;
+    } else {
+      // Refresh hardware details (like auto-assigning the node number) if a valid hardware remains
+      this.onHardwareChange(axis);
+    }
   }
 
   public static onMotionChange(axis: any): void {
