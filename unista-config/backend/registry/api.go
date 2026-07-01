@@ -1,4 +1,7 @@
+// backend/registry/api.go
 package registry
+
+import "my-machine-app/backend/models" // Importation nécessaire pour la signature de GetEquipmentRegistry
 
 // Service exposes UI registry definitions to the Vue frontend via Wails.
 type Service struct{}
@@ -9,7 +12,8 @@ func NewService() *Service {
 }
 
 // GetEquipmentRegistry returns all equipment UI definitions.
-func (s *Service) GetEquipmentRegistry() (map[string]EquipmentDefinition, error) {
+// Modifié : la signature renvoie désormais un dictionnaire indexé par models.EquipmentType
+func (s *Service) GetEquipmentRegistry() (map[models.EquipmentType]EquipmentDefinition, error) {
 	return EquipmentRegistry()
 }
 

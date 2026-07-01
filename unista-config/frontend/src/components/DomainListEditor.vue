@@ -1,6 +1,10 @@
 <template>
-  <div class="pt-4 pb-8 h-full flex flex-col w-full overflow-hidden relative bg-gray-50/50">
-    <div class="flex flex-row gap-5 overflow-x-auto pb-8 pt-2 px-5 flex-1 items-start font-sans">
+  <div
+    class="pt-4 pb-8 h-full flex flex-col w-full overflow-hidden relative bg-gray-50/50"
+  >
+    <div
+      class="flex flex-row gap-5 overflow-x-auto pb-8 pt-2 px-5 flex-1 items-start font-sans"
+    >
       <draggable
         v-model="items"
         item-key="id"
@@ -54,7 +58,11 @@
                   v-model="(item.ui as any)[translationsToggleKey]"
                 >
                   <template #icon>
-                    <AppIcon name="align-left" :size="14" class="text-gray-500" />
+                    <AppIcon
+                      name="align-left"
+                      :size="14"
+                      class="text-gray-500"
+                    />
                   </template>
                   <TranslationsFields :item="item" />
                 </CollapsibleSection>
@@ -129,6 +137,7 @@ import AppIcon from "./AppIcon.vue";
 import type { SidebarCapabilities } from "../config/equipment";
 import { useParamSelection2D } from "../composables/useParamSelection2D";
 import { CalculationService, countActive } from "../core";
+import { sanitizeVariableName } from "../utils/validators";
 
 const items = defineModel<any[]>("items", { required: true });
 
@@ -182,8 +191,8 @@ const openSidebar = (itemIdx: number, catKey: string, paramIdx: number) => {
   openBase(itemIdx, paramIdx);
 };
 
-const onNameInput = async (item: { name: string }, event: Event) => {
+const onNameInput = (item: { name: string }, event: Event) => {
   const raw = (event.target as HTMLInputElement).value;
-  item.name = await CalculationService.sanitizeVariableName(raw);
+  item.name = sanitizeVariableName(raw);
 };
 </script>

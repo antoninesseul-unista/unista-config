@@ -16,6 +16,7 @@ import RoleManagement from "../views/RoleManagement.vue";
 import SystemConstantsView from "../views/SystemConstantsView.vue";
 import TranslationView from "../views/TranslationView.vue";
 import UpdaterView from "../views/UpdaterView.vue";
+import { SINGLETON_PAGES } from "../config/navigation";
 
 const APP_TITLE = "Unista Config";
 
@@ -109,8 +110,8 @@ export const router = createRouter({
       props: (route) => ({ type: route.params.type }),
       beforeEnter: (to) => {
         const t = String(to.params.type);
-        // Protection des singletons
-        if (["process", "setting", "info"].includes(t)) {
+        // Utilisation de la constante DRY
+        if (SINGLETON_PAGES.includes(t as any)) {
           return "/machine-logic";
         }
         return pageRegistry.value[t] ? true : "/general";

@@ -125,7 +125,11 @@
                   v-model="eq.ui.showProps"
                 >
                   <template #icon>
-                    <AppIcon name="align-left" :size="14" class="text-gray-500" />
+                    <AppIcon
+                      name="align-left"
+                      :size="14"
+                      class="text-gray-500"
+                    />
                   </template>
                   <TranslationsFields :item="eq" />
                 </CollapsibleSection>
@@ -141,9 +145,16 @@
                   v-model.number="eq.cycleTime"
                   class="w-full px-2 py-1.5 border border-gray-200 rounded-md text-sm bg-white focus:ring-1 focus:ring-blue-500 outline-none transition-colors"
                 >
-                  <option :value="2" :disabled="!store.definition.allowsFastCycle">
+                  <option
+                    :value="2"
+                    :disabled="!store.definition.allowsFastCycle"
+                  >
                     2 ms
-                    {{ !store.definition.allowsFastCycle ? "(Axes & Mechatro Only)" : "" }}
+                    {{
+                      !store.definition.allowsFastCycle
+                        ? "(Axes & Mechatro Only)"
+                        : ""
+                    }}
                   </option>
                   <option :value="4">4 ms</option>
                   <option :value="10">10 ms</option>
@@ -166,7 +177,11 @@
                 :icon="section.icon"
                 v-model="eq.ui[section.uiKey]"
                 :is-field-error="(f) => isFieldError(eq, f)"
-                :is-field-visible="section.filterVisible ? (f) => isFieldVisible(eq, f) : undefined"
+                :is-field-visible="
+                  section.filterVisible
+                    ? (f) => isFieldVisible(eq, f)
+                    : undefined
+                "
               />
 
               <div
@@ -180,7 +195,11 @@
                   v-model="eq.ui.showParams"
                 >
                   <template #icon>
-                    <AppIcon name="sliders-horizontal" :size="14" class="text-gray-500" />
+                    <AppIcon
+                      name="sliders-horizontal"
+                      :size="14"
+                      class="text-gray-500"
+                    />
                   </template>
 
                   <template #badge v-if="hasParamsError(eq)">
@@ -277,7 +296,9 @@ import TranslationsFields from "../components/TranslationsFields.vue";
 import { useEquipmentValidation } from "../composables/useEquipmentValidation";
 import { useParamSelection2D } from "../composables/useParamSelection2D";
 import type { ConfigField, EquipmentInstance } from "../config/equipment";
-import { CalculationService, equipmentStores, equipmentFieldSections, modules } from "../core";
+import { equipmentStores, equipmentFieldSections, modules } from "../core";
+import { sanitizeVariableName } from "../utils/validators";
+import type { models } from "../../wailsjs/go/models";
 
 const props = defineProps<{ type: string }>();
 
@@ -306,17 +327,17 @@ const fieldSections = computed(() => {
     .map((spec) => ({
       label: spec.label,
       fields: (def[spec.fieldsKey] || []) as ConfigField[],
-      icon: spec.iconKey ? (def[spec.iconKey] as string | undefined) : undefined,
+      icon: spec.iconKey
+        ? (def[spec.iconKey] as string | undefined)
+        : undefined,
       uiKey: spec.uiKey,
       filterVisible: spec.filterVisible ?? false,
     }))
     .filter((s) => s.fields.length > 0);
 });
 
-const onNameInput = async (eq: EquipmentInstance, event: Event) => {
-  eq.name = await CalculationService.sanitizeVariableName(
-    (event.target as HTMLInputElement).value,
-  );
+const onNameInput = (eq: EquipmentInstance, event: Event) => {
+  eq.name = sanitizeVariableName((event.target as HTMLInputElement).value);
 };
 
 const TRACKING_PARAM_LABELS = [
@@ -330,15 +351,23 @@ const TRACKING_PARAM_LABELS = [
   "Conveyor Tracking Stop 2",
 ];
 
-const getFilteredParameters = (eq: EquipmentInstance) => {
-  let params = eq.parameters ?? [];
+/**
+ * Explicitly type `p: models.Parameter` to resolve implicit any errors
+ * resulting from `eq.parameters` being inferred as generic `unknown[]`.
+ */
+const getFilteredParameters = (eq: EquipmentInstance): models.Parameter[] => {
+  let params = (eq.parameters as models.Parameter[]) ?? [];
 
   if (eq.type === "vacuum" && eq.cmdType === "VacuumOnly") {
-    params = params.filter((p) => !p.name.toLowerCase().includes("blow"));
+    params = params.filter(
+      (p: models.Parameter) => !p.name.toLowerCase().includes("blow"),
+    );
   }
 
   if (eq.type === "robot" && !eq.trackingActive) {
-    params = params.filter((p) => !TRACKING_PARAM_LABELS.includes(p.name));
+    params = params.filter(
+      (p: models.Parameter) => !TRACKING_PARAM_LABELS.includes(p.name),
+    );
   }
 
   if (eq.type === "robot") {
@@ -348,21 +377,31 @@ const getFilteredParameters = (eq: EquipmentInstance) => {
       eq.palettizationId !== 0;
 
     if (!hasPalettization) {
-      params = params.filter((p) => p.name !== "Palletizing Recipe");
+      params = params.filter(
+        (p: models.Parameter) => p.name !== "Palletizing Recipe",
+      );
     }
   }
 
   return params;
 };
 
-const findOriginalIndex = (eq: EquipmentInstance, param: { id: number }): number =>
-  eq.parameters.findIndex((p) => p.id === param.id);
+const findOriginalIndex = (
+  eq: EquipmentInstance,
+  param: { id: number },
+): number =>
+  (eq.parameters as models.Parameter[]).findIndex(
+    (p: models.Parameter) => p.id === param.id,
+  );
 
 watchEffect(() => {
   for (const eq of store.value.list.value) {
     if (eq.type !== "robot") continue;
 
-    const palletizingRecipe = eq.parameters?.find((p) => p.name === "Palletizing Recipe");
+    // Explicitly type `p`
+    const palletizingRecipe = (eq.parameters as models.Parameter[])?.find(
+      (p: models.Parameter) => p.name === "Palletizing Recipe",
+    );
     if (!palletizingRecipe) continue;
 
     const isActive =
@@ -382,6 +421,9 @@ const {
   open: openSidebar,
   close: closeSidebar,
 } = useParamSelection2D(
-  (eqIdx, paramIdx) => store.value.list.value[eqIdx]?.parameters?.[paramIdx] ?? null,
+  (eqIdx, paramIdx) =>
+    (store.value.list.value[eqIdx]?.parameters as models.Parameter[])?.[
+      paramIdx
+    ] ?? null,
 );
 </script>

@@ -1,3 +1,4 @@
+// backend/services/config_validation.go
 package services
 
 import (
@@ -23,30 +24,33 @@ var requiredConfigKeys = []string{
 	"roles",
 }
 
-// ValidateConfigJSON checks that raw bytes are a valid application configuration file.
+// ValidateConfigJSON checks that raw bytes represent a valid application configuration file.
 func ValidateConfigJSON(raw []byte) error {
 	if len(raw) == 0 {
-		return fmt.Errorf("le fichier est vide")
+		return fmt.Errorf("the file is empty")
 	}
 
 	var root map[string]json.RawMessage
 	if err := json.Unmarshal(raw, &root); err != nil {
-		return fmt.Errorf("JSON invalide: %w", err)
+		return fmt.Errorf("invalid JSON format: %w", err)
 	}
 
+	// Verify all structural required keys are present
 	for _, key := range requiredConfigKeys {
 		if _, ok := root[key]; !ok {
-			return fmt.Errorf("champ requis manquant: %s", key)
+			// %q ensures the key is properly quoted for readable logs
+			return fmt.Errorf("missing required field: %q", key)
 		}
 	}
 
+	// Validate configuration schema version compatibility if present
 	if versionRaw, ok := root["schemaVersion"]; ok {
 		var version int
 		if err := json.Unmarshal(versionRaw, &version); err != nil {
-			return fmt.Errorf("schemaVersion invalide")
+			return fmt.Errorf("invalid schemaVersion format")
 		}
 		if version > ConfigSchemaVersion {
-			return fmt.Errorf("version de schéma incompatible (fichier: %d, application: %d)", version, ConfigSchemaVersion)
+			return fmt.Errorf("incompatible schema version (file: %d, application: %d)", version, ConfigSchemaVersion)
 		}
 	}
 

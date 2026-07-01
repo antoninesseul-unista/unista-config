@@ -11,27 +11,38 @@
 <script setup lang="ts">
 import { onMounted } from "vue";
 import { PersistenceService, initCloseHandler, appState } from "./core";
+import { initAutoSave } from "./core/bootstrap";
+import { toast } from "./composables/useToast";
 import Sidebar from "./components/Sidebar.vue";
 import ToastContainer from "./components/ToastContainer.vue";
 import { HardwareService } from "./core/wails";
 
 onMounted(async () => {
-  // 1. Initialisation des services existants
-  await PersistenceService.init();
-  initCloseHandler();
+  // 1. Wait for disk data to be fully loaded first to prevent race conditions
+  const loadSuccess = await PersistenceService.init();
 
-  // 2. Chargement 100% transparent du Hardware en arrière-plan
+  // 2. Lock mechanism: ONLY enable AutoSave if the configuration file is healthy.
+  // If the file is corrupted, we prevent auto-save from overwriting it with default values.
+  if (loadSuccess) {
+    initAutoSave();
+    initCloseHandler();
+  } else {
+    toast.error("Data Load Failure", {
+      description:
+        "Configuration file is corrupted. Auto-save has been disabled for safety.",
+    });
+  }
+
+  // 3. Background transparent loading for hardware context
   try {
     const modules = await HardwareService.autoLoadHardware();
     if (modules && modules.length > 0) {
       appState.detectedHardware = modules;
-      console.log(
-        `[Hardware] ${modules.length} modules chargés automatiquement.`,
-      );
+      console.log(`[Hardware] ${modules.length} modules loaded automatically.`);
     }
   } catch (err) {
     console.error(
-      "[Hardware] Échec du chargement automatique au démarrage:",
+      "[Hardware] Background automatic load failed at startup:",
       err,
     );
   }

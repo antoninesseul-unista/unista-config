@@ -1,5 +1,7 @@
 package registry
 
+import "my-machine-app/backend/models"
+
 // ConfigField describes a single form field in the equipment UI.
 type ConfigField struct {
 	Label        string   `json:"label"`
@@ -23,7 +25,7 @@ type SidebarCapabilities struct {
 
 // EquipmentDefinition is the UI schema for one equipment type.
 type EquipmentDefinition struct {
-	Type                string              `json:"type"`
+	Type                models.EquipmentType `json:"type"`
 	Label               string              `json:"label"`
 	Prefix              string              `json:"prefix"`
 	HasEmLink           bool                `json:"hasEmLink"`

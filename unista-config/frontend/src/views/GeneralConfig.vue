@@ -200,25 +200,13 @@
 
 <script setup lang="ts">
 import { generalConfigState as config } from "../core";
-
-/**
- * Validates IPv4 address format.
- * @param ip - The IP address string to validate
- * @returns boolean - true if the IP is valid
- */
-const isValidIP = (ip: string): boolean => {
-  const regex =
-    /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
-  return regex.test(ip);
-};
+import { isValidIPAddress } from "../utils/validators";
 
 /**
  * Determines if an input should be highlighted in red due to an invalid IP address.
  * It ignores empty strings to prevent displaying an error before the user starts typing.
- * @param ip - The IP address string to evaluate
- * @returns boolean - true if the field contains an invalid IP
  */
 const hasIpError = (ip: string): boolean => {
-  return ip.length > 0 && !isValidIP(ip);
+  return ip.length > 0 && !isValidIPAddress(ip);
 };
 </script>

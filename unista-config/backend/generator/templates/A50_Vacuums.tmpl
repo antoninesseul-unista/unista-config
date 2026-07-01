@@ -2,20 +2,20 @@ ACTION A50_Vacuums:
 
 	pConfiguratorDate.VA := '{{ .Date }}';
 
-{{- range $vac := index .AppData.Equipment "vacuum" }}
+{{- range $vac := .GetEquipment "vacuum" }}
 	// --------------------------------------------------------------------------------------------------------------- //
-	// VA {{ $vac.index }} : {{ $vac.name }}
+	// VA {{ $vac.Index }} : {{ $vac.Name }}
 	// --------------------------------------------------------------------------------------------------------------- //
 	// Activation
-	pVacuumList[{{ $vac.index }}].Active                              := TRUE;
-	pVacuumList[{{ $vac.index }}].Enable                              := {{ if $vac.enable }}TRUE{{ else }}FALSE{{ end }};
-	pVacuumList[{{ $vac.index }}].ID                                  := {{ $vac.index }};
-	pVacuumList[{{ $vac.index }}].ID_EM                               := {{ index $.ModuleMap $vac.emId }};
-
+	pVacuumList[{{ $vac.Index }}].Active                              := TRUE;
+	pVacuumList[{{ $vac.Index }}].Enable                              := {{ if $vac.Enable }}TRUE{{ else }}FALSE{{ end }};
+	pVacuumList[{{ $vac.Index }}].ID                                  := {{ $vac.Index }};
+	pVacuumList[{{ $vac.Index }}].ID_EM                               := {{ index $.ModuleMap $vac.EmID }};
+	
 	// Configuration
-	pVacuumList[{{ $vac.index }}].Cfg.Task                            := 4;
-	pVacuumList[{{ $vac.index }}].Cfg.VenturiType                     := {{ $vac.cmdType }};
-	pVacuumList[{{ $vac.index }}].Cfg.Sensor                          := {{ $vac.sensorType }};
-{{ end }}
+	pVacuumList[{{ $vac.Index }}].Cfg.Task                            := 4;
+	pVacuumList[{{ $vac.Index }}].Cfg.VenturiType                     := {{ $vac.Configuration.cmdType }};
+	pVacuumList[{{ $vac.Index }}].Cfg.Sensor                          := {{ $vac.Configuration.switchType }};
+{{- end }}
 
 END_ACTION

@@ -30,6 +30,13 @@ export interface EquipmentFieldSection {
 }
 
 export interface EquipmentDefinition {
+  reductionFields: never[];
+  homingFields: never[];
+  autoTuneFields: never[];
+  inverterFields: never[];
+  defaultValuesFields: never[];
+  limitsFields: never[];
+  configurationFields: never[];
   type: string;
   label: string;
   prefix: string;

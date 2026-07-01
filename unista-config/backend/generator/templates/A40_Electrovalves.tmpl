@@ -2,21 +2,21 @@ ACTION A40_Electrovalves:
 
 	pConfiguratorDate.EV := '{{ .Date }}';
 
-{{ range $index, $ev := .AppData.Equipment.electrovalve }}
+{{- range $index, $ev := .GetEquipment "electrovalve" }}
 	// --------------------------------------------------------------------------------------------------------------- //
-	//  EV {{ $ev.index }} : {{ $ev.name }}
+	//  EV {{ $ev.Index }} : {{ $ev.Name }}
 	// --------------------------------------------------------------------------------------------------------------- //
 	// Activation
-	pElectrovalveList[{{ $ev.index }}].Active                         := TRUE;
-	pElectrovalveList[{{ $ev.index }}].Enable                         := {{ if $ev.enable }}TRUE{{ else }}FALSE{{ end }};
-	pElectrovalveList[{{ $ev.index }}].ID                             := {{ $ev.index }};
-	pElectrovalveList[{{ $ev.index }}].ID_EM                          := {{ index $.ModuleMap $ev.emId }};
+	pElectrovalveList[{{ $ev.Index }}].Active                         := TRUE;
+	pElectrovalveList[{{ $ev.Index }}].Enable                         := {{ if $ev.Enable }}TRUE{{ else }}FALSE{{ end }};
+	pElectrovalveList[{{ $ev.Index }}].ID                             := {{ $ev.Index }};
+	pElectrovalveList[{{ $ev.Index }}].ID_EM                          := {{ index $.ModuleMap $ev.EmID }};
 	
 	// Configuration
-	pElectrovalveList[{{ $ev.index }}].Cfg.Task                       := 4;
-	pElectrovalveList[{{ $ev.index }}].Cfg.ElectrovalveType           := {{ $ev.cmdType }};
-	pElectrovalveList[{{ $ev.index }}].Cfg.Sensor                     := {{ $ev.sensorType }};
-	pElectrovalveList[{{ $ev.index }}].Cfg.CenterType                 := {{ $ev.centerType }};
-{{ end }}
+	pElectrovalveList[{{ $ev.Index }}].Cfg.Task                       := 4;
+	pElectrovalveList[{{ $ev.Index }}].Cfg.ElectrovalveType           := {{ $ev.Configuration.cmdType }};
+	pElectrovalveList[{{ $ev.Index }}].Cfg.Sensor                     := {{ $ev.Configuration.sensorType }};
+	pElectrovalveList[{{ $ev.Index }}].Cfg.CenterType                 := {{ $ev.Configuration.centerType }};
+{{- end }}
 	
 END_ACTION

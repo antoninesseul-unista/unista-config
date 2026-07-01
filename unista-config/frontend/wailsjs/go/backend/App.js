@@ -14,10 +14,6 @@ export function GenerateSTFiles(arg1) {
   return window['go']['backend']['App']['GenerateSTFiles'](arg1);
 }
 
-export function ImportHardwareConfig() {
-  return window['go']['backend']['App']['ImportHardwareConfig']();
-}
-
 export function Startup(arg1) {
   return window['go']['backend']['App']['Startup'](arg1);
 }

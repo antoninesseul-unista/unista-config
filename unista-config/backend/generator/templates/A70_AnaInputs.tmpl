@@ -2,25 +2,22 @@ ACTION A70_AnaInputs:
 
 	pConfiguratorDate.AI							:= '{{ .Date }}';
 
-{{- range $ai := index .AppData.Equipment "analogInput" }}
+{{- range $ai := .GetEquipment "analogInput" }}
 	// --------------------------------------------------------------------------------------------------------------- //
-	//  AI {{ $ai.index }} : {{ $ai.name }}
+	//  AI {{ $ai.Index }} : {{ $ai.Name }}
 	// --------------------------------------------------------------------------------------------------------------- //
 	// Activation
-	pAnaInputList[{{ $ai.index }}].Active							:= TRUE;
-	pAnaInputList[{{ $ai.index }}].Enable							:= {{ if $ai.enable }}TRUE{{ else }}FALSE{{ end }};
-	pAnaInputList[{{ $ai.index }}].ID								:= {{ $ai.index }};
-	pAnaInputList[{{ $ai.index }}].ID_EM							:= {{ index $.ModuleMap $ai.emId }};
-
+	pAnaInputList[{{ $ai.Index }}].Active							:= TRUE;
+	pAnaInputList[{{ $ai.Index }}].Enable							:= {{ if $ai.Enable }}TRUE{{ else }}FALSE{{ end }};
+	pAnaInputList[{{ $ai.Index }}].ID								:= {{ $ai.Index }};
+	pAnaInputList[{{ $ai.Index }}].ID_EM							:= {{ if $ai.EmID }}{{ index $.ModuleMap $ai.EmID }}{{ else }}0{{ end }};
 	// Configuration
-	pAnaInputList[{{ $ai.index }}].Cfg.Task							:= {{ if $ai.task }}{{ $ai.task }}{{ else }}4{{ end }};
-	pAnaInputList[{{ $ai.index }}].Cfg.ForceAllowed					:= {{ if $ai.forceAllowed }}TRUE{{ else }}FALSE{{ end }};
-
+	pAnaInputList[{{ $ai.Index }}].Cfg.Task							:= 4;
 	// Linear calibration
-	pAnaInputList[{{ $ai.index }}].Cfg.Linear.X1					:= {{ if $ai.calibX1 }}{{ $ai.calibX1 }}{{ else }}0{{ end }};
-	pAnaInputList[{{ $ai.index }}].Cfg.Linear.Y1					:= {{ if $ai.calibY1 }}{{ $ai.calibY1 }}{{ else }}0{{ end }};
-	pAnaInputList[{{ $ai.index }}].Cfg.Linear.X2					:= {{ if $ai.calibX2 }}{{ $ai.calibX2 }}{{ else }}32567{{ end }};
-	pAnaInputList[{{ $ai.index }}].Cfg.Linear.Y2					:= {{ if $ai.calibY2 }}{{ $ai.calibY2 }}{{ else }}100{{ end }};
+	pAnaInputList[{{ $ai.Index }}].Cfg.Linear.X1					:= {{ if $ai.Configuration.x1 }}{{ $ai.Configuration.x1 }}{{ else }}0{{ end }};
+	pAnaInputList[{{ $ai.Index }}].Cfg.Linear.Y1					:= {{ if $ai.Configuration.y1 }}{{ $ai.Configuration.y1 }}{{ else }}0{{ end }};
+	pAnaInputList[{{ $ai.Index }}].Cfg.Linear.X2					:= {{ if $ai.Configuration.x2 }}{{ $ai.Configuration.x2 }}{{ else }}0{{ end }};
+	pAnaInputList[{{ $ai.Index }}].Cfg.Linear.Y2					:= {{ if $ai.Configuration.y2 }}{{ $ai.Configuration.y2 }}{{ else }}0{{ end }};
 {{- end }}
 
 END_ACTION

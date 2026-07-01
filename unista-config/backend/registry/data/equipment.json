@@ -12,30 +12,19 @@
         "label": "Cmd type",
         "field": "cmdType",
         "type": "select",
-        "options": [
-          "Monostable",
-          "Bistable"
-        ]
+        "options": ["Monostable", "Bistable"]
       },
       {
         "label": "Center type",
         "field": "centerType",
         "type": "select",
-        "options": [
-          "Open",
-          "Closed"
-        ]
+        "options": ["Open", "Closed"]
       },
       {
         "label": "Sensor type",
         "field": "sensorType",
         "type": "select",
-        "options": [
-          "NoSensor",
-          "FwdSensor",
-          "BwdSensor",
-          "AllSensors"
-        ]
+        "options": ["NoSensor", "FwdSensor", "BwdSensor", "AllSensors"]
       }
     ],
     "parameterFields": [
@@ -65,9 +54,9 @@
       }
     ],
     "sidebarCapabilities": {
-      "showName": true,
-      "showTranslations": true,
-      "showReserves": true,
+      "showName": false,
+      "showTranslations": false,
+      "showReserves": false,
       "showRobot": true
     }
   },
@@ -84,11 +73,7 @@
         "label": "Cmd type",
         "field": "cmdType",
         "type": "select",
-        "options": [
-          "VacuumOnly",
-          "VacuumBlow",
-          "VacuumBlowPulse"
-        ]
+        "options": ["VacuumOnly", "VacuumBlow", "VacuumBlowPulse"]
       },
       {
         "label": "Switch type",
@@ -204,7 +189,7 @@
       "showName": false,
       "showTranslations": false,
       "showReserves": false,
-      "showRobot": true
+      "showRobot": false
     }
   },
   "analogInput": {
@@ -400,11 +385,7 @@
         "label": "Motor Type",
         "field": "motorType",
         "type": "select",
-        "options": [
-          "OnlyFwd",
-          "OnlyBwd",
-          "TwoSens"
-        ]
+        "options": ["OnlyFwd", "OnlyBwd", "TwoSens"]
       },
       {
         "label": "Command hold time (s)",
@@ -429,41 +410,26 @@
     "allowsFastCycle": true,
     "customPanel": "axis",
     "menuIcon": "axis-3d",
-    "configIcon": "settings",
-    "configFields": [
+    "controllerIcon": "cpu",
+
+    "controllerFields": [
       {
         "label": "Controller Type",
         "field": "controllerType",
         "type": "select",
-        "options": [
-          "ACOPOS",
-          "INVERTER",
-          "VIRTUAL",
-          "PSE",
-          "INTERROLL"
-        ]
+        "options": ["ACOPOS", "INVERTER", "VIRTUAL", "PSE", "INTERROLL"]
       },
       {
         "label": "Drive Reference",
         "field": "driveReference",
         "type": "select",
-        "options": [
-          "P3",
-          "MICRO",
-          "MULTI",
-          "P74",
-          "P76"
-        ]
+        "options": ["P3", "MICRO", "MULTI", "P74", "P76"]
       },
       {
         "label": "Hardware Reference",
         "field": "hardwareReference",
         "type": "select",
-        "options": [
-          "Hardware 1",
-          "Hardware 2",
-          "Hardware 3"
-        ]
+        "options": ["Hardware 1", "Hardware 2", "Hardware 3"]
       },
       {
         "label": "Node Number",
@@ -492,7 +458,9 @@
           "AXE_PSE_325_335",
           "AXE_PSE_328"
         ]
-      },
+      }
+    ],
+    "configurationFields": [
       {
         "label": "Motion Type",
         "field": "motionType",
@@ -510,10 +478,7 @@
         "label": "Units",
         "field": "units",
         "type": "select",
-        "options": [
-          "DEGREES",
-          "MILLIMETERS"
-        ]
+        "options": ["DEGREES", "MILLIMETERS"]
       },
       {
         "label": "Resolution",
@@ -525,121 +490,10 @@
         "label": "Encoder Direction",
         "field": "encoderRotationDirection",
         "type": "select",
-        "options": [
-          "CLOCKWISE",
-          "COUNTER_CLOCKWISE"
-        ]
-      },
-      {
-        "label": "Default Velocity",
-        "field": "defaultVelocity",
-        "type": "number"
-      },
-      {
-        "label": "Default Acceleration",
-        "field": "defaultAcceleration",
-        "type": "number"
-      },
-      {
-        "label": "Default Deceleration",
-        "field": "defaultDeceleration",
-        "type": "number"
-      },
-      {
-        "label": "Direction Strategy",
-        "field": "defaultDirection",
-        "type": "select",
-        "options": [
-          "DIR_POSITIVE",
-          "DIR_NEGATIVE",
-          "DIR_CURRENT",
-          "DIR_SHORTEST_WAY",
-          "DIR_EXCEED_PERIOD"
-        ]
-      },
-      {
-        "label": "Gearbox Input",
-        "field": "gearboxInput",
-        "type": "number"
-      },
-      {
-        "label": "Gearbox Output",
-        "field": "gearboxOutput",
-        "type": "number"
-      },
-      {
-        "label": "Transformation",
-        "field": "transformation",
-        "type": "number"
+        "options": ["CLOCKWISE", "COUNTER_CLOCKWISE"]
       }
     ],
-    "controllerIcon": "cpu",
-    "controllerFields": [
-      {
-        "label": "Tune Mode",
-        "field": "autoTuneMode",
-        "type": "select",
-        "options": [
-          "AXIS_TUNE_AUTOMATIC",
-          "AXIS_TUNE_SPEED",
-          "AXIS_TUNE_POSITION",
-          "AXIS_TUNE_FEED_FORWARD"
-        ]
-      },
-      {
-        "label": "Tune Orientation",
-        "field": "autoTuneOrientation",
-        "type": "select",
-        "options": [
-          "HORIZONTAL",
-          "VERTICAL"
-        ]
-      },
-      {
-        "label": "Max Current (%)",
-        "field": "autoTuneMaxCurrentPercentage",
-        "type": "number",
-        "defaultValue": 80
-      },
-      {
-        "label": "Enable 60 Hz Mode",
-        "field": "inverterEnable60Hz",
-        "type": "boolean",
-        "defaultValue": false
-      },
-      {
-        "label": "Power (W)",
-        "field": "inverterPowerW",
-        "type": "number"
-      },
-      {
-        "label": "Cos Phi",
-        "field": "inverterCosPhi",
-        "type": "number"
-      },
-      {
-        "label": "Voltage (V)",
-        "field": "inverterVoltageV",
-        "type": "number"
-      },
-      {
-        "label": "Current (A)",
-        "field": "inverterCurrentA",
-        "type": "number"
-      },
-      {
-        "label": "Speed (RPM)",
-        "field": "inverterMotorSpeedRpm",
-        "type": "number"
-      },
-      {
-        "label": "Max Freq. (Hz)",
-        "field": "inverterMaxFrequencyHz",
-        "type": "number"
-      }
-    ],
-    "processIcon": "workflow",
-    "processFields": [
+    "limitsFields": [
       {
         "label": "Lower Position",
         "field": "lowerPosition",
@@ -689,7 +543,55 @@
         "label": "Following Error",
         "field": "followingError",
         "type": "number"
+      }
+    ],
+    "defaultValuesFields": [
+      {
+        "label": "Default Velocity",
+        "field": "defaultVelocity",
+        "type": "number"
       },
+      {
+        "label": "Default Acceleration",
+        "field": "defaultAcceleration",
+        "type": "number"
+      },
+      {
+        "label": "Default Deceleration",
+        "field": "defaultDeceleration",
+        "type": "number"
+      },
+      {
+        "label": "Direction Strategy",
+        "field": "defaultDirection",
+        "type": "select",
+        "options": [
+          "DIR_POSITIVE",
+          "DIR_NEGATIVE",
+          "DIR_CURRENT",
+          "DIR_SHORTEST_WAY",
+          "DIR_EXCEED_PERIOD"
+        ]
+      }
+    ],
+    "reductionFields": [
+      {
+        "label": "Gearbox Input",
+        "field": "gearboxInput",
+        "type": "number"
+      },
+      {
+        "label": "Gearbox Output",
+        "field": "gearboxOutput",
+        "type": "number"
+      },
+      {
+        "label": "Transformation",
+        "field": "transformation",
+        "type": "number"
+      }
+    ],
+    "homingFields": [
       {
         "label": "Homing Type",
         "field": "homingType",
@@ -710,10 +612,7 @@
         "label": "Homing Direction",
         "field": "homingDirection",
         "type": "select",
-        "options": [
-          "NEGATIVE",
-          "POSITIVE"
-        ]
+        "options": ["NEGATIVE", "POSITIVE"]
       },
       {
         "label": "Homing Velocity",
@@ -746,7 +645,71 @@
         "type": "number"
       }
     ],
+    "autoTuneFields": [
+      {
+        "label": "Tune Mode",
+        "field": "autoTuneMode",
+        "type": "select",
+        "options": [
+          "AXIS_TUNE_AUTOMATIC",
+          "AXIS_TUNE_SPEED",
+          "AXIS_TUNE_POSITION",
+          "AXIS_TUNE_FEED_FORWARD"
+        ]
+      },
+      {
+        "label": "Tune Orientation",
+        "field": "autoTuneOrientation",
+        "type": "select",
+        "options": ["HORIZONTAL", "VERTICAL"]
+      },
+      {
+        "label": "Max Current (%)",
+        "field": "autoTuneMaxCurrentPercentage",
+        "type": "number",
+        "defaultValue": 80
+      }
+    ],
+    "inverterFields": [
+      {
+        "label": "Enable 60 Hz Mode",
+        "field": "inverterEnable60Hz",
+        "type": "boolean",
+        "defaultValue": false
+      },
+      {
+        "label": "Power (W)",
+        "field": "inverterPowerW",
+        "type": "number"
+      },
+      {
+        "label": "Cos Phi",
+        "field": "inverterCosPhi",
+        "type": "number"
+      },
+      {
+        "label": "Voltage (V)",
+        "field": "inverterVoltageV",
+        "type": "number"
+      },
+      {
+        "label": "Current (A)",
+        "field": "inverterCurrentA",
+        "type": "number"
+      },
+      {
+        "label": "Speed (RPM)",
+        "field": "inverterMotorSpeedRpm",
+        "type": "number"
+      },
+      {
+        "label": "Max Frequency (Hz)",
+        "field": "inverterMaxFrequencyHz",
+        "type": "number"
+      }
+    ],
     "parameterFields": [],
+
     "sidebarCapabilities": {
       "showName": false,
       "showTranslations": false,
@@ -820,10 +783,7 @@
         "label": "Trigger Source",
         "field": "triggerSource",
         "type": "select",
-        "options": [
-          "PLC_Trigger",
-          "IO_Trigger"
-        ]
+        "options": ["PLC_Trigger", "IO_Trigger"]
       }
     ],
     "parameterFields": [
@@ -890,13 +850,7 @@
         "label": "Robot brand",
         "field": "robotBrand",
         "type": "select",
-        "options": [
-          "STAUBLI",
-          "FANUC",
-          "ABB",
-          "YASKAWA",
-          "KUKA"
-        ]
+        "options": ["STAUBLI", "FANUC", "ABB", "YASKAWA", "KUKA"]
       },
       {
         "label": "Tracking active",

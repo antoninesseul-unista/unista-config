@@ -1,9 +1,12 @@
+// backend/registry/loader.go
 package registry
 
 import (
 	_ "embed"
 	"encoding/json"
 	"sync"
+
+	"my-machine-app/backend/models" // Importation de nos modèles pour utiliser EquipmentType
 )
 
 //go:embed data/equipment.json
@@ -17,7 +20,7 @@ var pagesJSON []byte
 
 var (
 	loadOnce       sync.Once
-	equipment      map[string]EquipmentDefinition
+	equipment      map[models.EquipmentType]EquipmentDefinition // Modifié : clé fortement typée
 	fieldSections  []EquipmentFieldSection
 	pages          map[string]PageDefinition
 	loadErr        error
@@ -40,7 +43,7 @@ func load() {
 }
 
 // EquipmentRegistry returns all equipment definitions keyed by registry id.
-func EquipmentRegistry() (map[string]EquipmentDefinition, error) {
+func EquipmentRegistry() (map[models.EquipmentType]EquipmentDefinition, error) {
 	load()
 	return equipment, loadErr
 }

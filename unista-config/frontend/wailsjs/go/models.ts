@@ -333,10 +333,10 @@ export namespace models {
 	    detail: string;
 	    id: number;
 	    actif: boolean;
-	    resetVisible?: boolean;
+	    resetVisible: boolean;
 	    robotMask: string;
 	    robotVarIndex: Record<string, number>;
-	    robotVarName?: string;
+	    robotVarName: string;
 	    steps?: CycleStep[];
 	    faultCode?: string;
 	    severity?: number;
@@ -531,7 +531,7 @@ export namespace models {
 	    roles: Record<string, any>;
 	    detectedHardware: HardwareModule[];
 	    modules: MachineModule[];
-	    equipment: Record<string, Array<any>>;
+	    equipment: Record<string, Array<BaseEquipment>>;
 	    buttons: ButtonEntity[];
 	    cycleButtons: CycleButtonEntity[];
 	    counters: CounterGroup[];
@@ -553,7 +553,7 @@ export namespace models {
 	        this.roles = source["roles"];
 	        this.detectedHardware = this.convertValues(source["detectedHardware"], HardwareModule);
 	        this.modules = this.convertValues(source["modules"], MachineModule);
-	        this.equipment = source["equipment"];
+	        this.equipment = this.convertValues(source["equipment"], Array<BaseEquipment>, true);
 	        this.buttons = this.convertValues(source["buttons"], ButtonEntity);
 	        this.cycleButtons = this.convertValues(source["cycleButtons"], CycleButtonEntity);
 	        this.counters = this.convertValues(source["counters"], CounterGroup);
@@ -580,35 +580,82 @@ export namespace models {
 		    return a;
 		}
 	}
-	
-	
-	
-	
-	
-	
-	
-	export class Electrovalve {
-	    name: string;
-	    enable: boolean;
-	    cycleTime: number;
-	    cmdType: string;
-	    centerType: string;
-	    sensorType: string;
-	    parameters: Parameter[];
+	export class BaseEquipmentUI {
+	    showProps: boolean;
+	    showConfiguration: boolean;
+	    showParams: boolean;
+	    showController: boolean;
+	    showProcess: boolean;
 	
 	    static createFrom(source: any = {}) {
-	        return new Electrovalve(source);
+	        return new BaseEquipmentUI(source);
 	    }
 	
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
-	        this.name = source["name"];
+	        this.showProps = source["showProps"];
+	        this.showConfiguration = source["showConfiguration"];
+	        this.showParams = source["showParams"];
+	        this.showController = source["showController"];
+	        this.showProcess = source["showProcess"];
+	    }
+	}
+	export class Metadata {
+	    commentFr: string;
+	    commentEn: string;
+	    commentDe: string;
+	    commentEs: string;
+	    reserve1: string;
+	    reserve2: string;
+	    detail: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new Metadata(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.commentFr = source["commentFr"];
+	        this.commentEn = source["commentEn"];
+	        this.commentDe = source["commentDe"];
+	        this.commentEs = source["commentEs"];
+	        this.reserve1 = source["reserve1"];
+	        this.reserve2 = source["reserve2"];
+	        this.detail = source["detail"];
+	    }
+	}
+	export class BaseEquipment {
+	    id: string;
+	    type: string;
+	    index: number;
+	    enable: boolean;
+	    name: string;
+	    emId: string;
+	    robotId?: string;
+	    cycleTime: number;
+	    translations: Metadata;
+	    configuration: Record<string, any>;
+	    parameters: Parameter[];
+	    ui: BaseEquipmentUI;
+	
+	    static createFrom(source: any = {}) {
+	        return new BaseEquipment(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.id = source["id"];
+	        this.type = source["type"];
+	        this.index = source["index"];
 	        this.enable = source["enable"];
+	        this.name = source["name"];
+	        this.emId = source["emId"];
+	        this.robotId = source["robotId"];
 	        this.cycleTime = source["cycleTime"];
-	        this.cmdType = source["cmdType"];
-	        this.centerType = source["centerType"];
-	        this.sensorType = source["sensorType"];
+	        this.translations = this.convertValues(source["translations"], Metadata);
+	        this.configuration = source["configuration"];
 	        this.parameters = this.convertValues(source["parameters"], Parameter);
+	        this.ui = this.convertValues(source["ui"], BaseEquipmentUI);
 	    }
 	
 		convertValues(a: any, classs: any, asMap: boolean = false): any {
@@ -629,6 +676,14 @@ export namespace models {
 		    return a;
 		}
 	}
+	
+	
+	
+	
+	
+	
+	
+	
 	
 	
 	
@@ -720,6 +775,7 @@ export namespace models {
 	
 	
 	
+	
 
 }
 
@@ -743,25 +799,6 @@ export namespace registry {
 	        this.iconKey = source["iconKey"];
 	        this.uiKey = source["uiKey"];
 	        this.filterVisible = source["filterVisible"];
-	    }
-	}
-
-}
-
-export namespace services {
-	
-	export class RobotVarIndexValidation {
-	    hasError: boolean;
-	    message: string;
-	
-	    static createFrom(source: any = {}) {
-	        return new RobotVarIndexValidation(source);
-	    }
-	
-	    constructor(source: any = {}) {
-	        if ('string' === typeof source) source = JSON.parse(source);
-	        this.hasError = source["hasError"];
-	        this.message = source["message"];
 	    }
 	}
 

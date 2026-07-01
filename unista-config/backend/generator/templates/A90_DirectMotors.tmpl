@@ -2,20 +2,20 @@ ACTION A90_DirectMotors:
 
 	pConfiguratorDate.DM						:= '{{ .Date }}';
 
-{{- range $dm := index .AppData.Equipment "directMotor" }}
+{{- range $dm := .GetEquipment "directMotor" }}
 	// --------------------------------------------------------------------------------------------------------------- //
-	//  DM {{ $dm.index }} : {{ $dm.name }}
+	//  DM {{ $dm.Index }} : {{ $dm.Name }}
 	// --------------------------------------------------------------------------------------------------------------- //
 	// Activation
-	pDirectMotorList[{{ $dm.index }}].Active						:= TRUE;
-	pDirectMotorList[{{ $dm.index }}].Enable						:= {{ if $dm.enable }}TRUE{{ else }}FALSE{{ end }};
-	pDirectMotorList[{{ $dm.index }}].ID							:= {{ $dm.index }};
-	pDirectMotorList[{{ $dm.index }}].ID_EM							:= {{ index $.ModuleMap $dm.emId }};
+	pDirectMotorList[{{ $dm.Index }}].Active						:= TRUE;
+	pDirectMotorList[{{ $dm.Index }}].Enable						:= {{ if $dm.Enable }}TRUE{{ else }}FALSE{{ end }};
+	pDirectMotorList[{{ $dm.Index }}].ID							:= {{ $dm.Index }};
+	pDirectMotorList[{{ $dm.Index }}].ID_EM							:= {{ if $dm.EmID }}{{ index $.ModuleMap $dm.EmID }}{{ else }}0{{ end }};
 
 	// Configuration
-	pDirectMotorList[{{ $dm.index }}].Cfg.Task						:= {{ if $dm.task }}{{ $dm.task }}{{ else }}4{{ end }};
-	pDirectMotorList[{{ $dm.index }}].Cfg.MotorLevel				:= {{ if $dm.motorLevel }}TRUE{{ else }}FALSE{{ end }};
-	pDirectMotorList[{{ $dm.index }}].Cfg.MotorType					:= {{ $dm.motorType }};
+	pDirectMotorList[{{ $dm.Index }}].Cfg.Task						:= 4;
+	pDirectMotorList[{{ $dm.Index }}].Cfg.MotorLevel				:= {{ if $dm.Configuration.levelOk }}TRUE{{ else }}FALSE{{ end }};
+	pDirectMotorList[{{ $dm.Index }}].Cfg.MotorType					:= {{ $dm.Configuration.motorType }};
 {{- end }}
 
 END_ACTION

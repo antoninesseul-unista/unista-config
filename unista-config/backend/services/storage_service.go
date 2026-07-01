@@ -10,11 +10,12 @@ import (
 	"strings"
 	"time"
 
-	"github.com/wailsapp/wails/v2/pkg/runtime"
 	"my-machine-app/backend/models"
+
+	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
-// StorageService handles application data persistence.
+// StorageService handles application data persistence safely.
 type StorageService struct {
 	ctx context.Context
 }
@@ -45,31 +46,34 @@ func (s *StorageService) getDataPath() (string, error) {
 }
 
 // LoadData reads the state from disk and parses it into AppData.
-func (s *StorageService) LoadData() (models.AppData, error) {
-	var data models.AppData
+// Returns a pointer so Wails translates an absent file into a true JavaScript 'null'.
+func (s *StorageService) LoadData() (*models.AppData, error) {
 	path, err := s.getDataPath()
 	if err != nil {
-		return data, err
+		return nil, err
 	}
 
 	file, err := os.ReadFile(path)
 	if err != nil {
 		if os.IsNotExist(err) {
-			return data, nil
+			// File doesn't exist yet: perfectly normal on first launch.
+			// Returning nil, nil translates to 'null' in JS without throwing an error.
+			return nil, nil
 		}
 		runtime.LogErrorf(s.ctx, "Error reading data file: %v", err)
-		return data, err
+		return nil, err
 	}
 
+	var data models.AppData
 	if err := json.Unmarshal(file, &data); err != nil {
 		runtime.LogErrorf(s.ctx, "JSON parse error: %v", err)
-		return data, err
+		return nil, err
 	}
 
-	return data, nil
+	return &data, nil
 }
 
-// SaveData serializes the AppData and writes it to disk.
+// SaveData serializes the AppData and writes it to disk using atomic operations.
 func (s *StorageService) SaveData(data models.AppData) error {
 	path, err := s.getDataPath()
 	if err != nil {
@@ -82,8 +86,17 @@ func (s *StorageService) SaveData(data models.AppData) error {
 		return err
 	}
 
-	if err := os.WriteFile(path, file, 0644); err != nil {
-		runtime.LogErrorf(s.ctx, "Error writing data file: %v", err)
+	// ATOMIC WRITE: Write to a temporary file first to prevent corruption
+	// in case the application crashes or power fails during the write process.
+	tmpPath := path + ".tmp"
+	if err := os.WriteFile(tmpPath, file, 0644); err != nil {
+		runtime.LogErrorf(s.ctx, "Error writing temp data file: %v", err)
+		return err
+	}
+
+	// Atomically rename the temp file to the final target file.
+	if err := os.Rename(tmpPath, path); err != nil {
+		runtime.LogErrorf(s.ctx, "Error renaming temp file to data file: %v", err)
 		return err
 	}
 
@@ -94,29 +107,28 @@ func (s *StorageService) SaveData(data models.AppData) error {
 // Returns the chosen path, or an empty string if the user cancelled.
 func (s *StorageService) ExportConfigToFile(jsonContent string) (string, error) {
 	if err := ValidateConfigJSON([]byte(jsonContent)); err != nil {
-		return "", fmt.Errorf("configuration invalide: %w", err)
+		return "", fmt.Errorf("invalid configuration: %w", err)
 	}
 
 	path, err := runtime.SaveFileDialog(s.ctx, runtime.SaveDialogOptions{
-		Title:           "Exporter la configuration",
+		Title:           "Export Configuration",
 		DefaultFilename: fmt.Sprintf("unista-config-%s.json", time.Now().Format("2006-01-02")),
 		Filters: []runtime.FileFilter{
 			{DisplayName: "JSON (*.json)", Pattern: "*.json"},
 		},
 	})
-	if err != nil {
+	
+	if err != nil || path == "" {
 		return "", err
 	}
-	if path == "" {
-		return "", nil
-	}
+	
 	if strings.ToLower(filepath.Ext(path)) != ".json" {
 		path += ".json"
 	}
 
 	if err := os.WriteFile(path, []byte(jsonContent), 0644); err != nil {
 		runtime.LogErrorf(s.ctx, "Error writing config export: %v", err)
-		return "", fmt.Errorf("impossible d'écrire le fichier: %w", err)
+		return "", fmt.Errorf("could not write file: %w", err)
 	}
 
 	runtime.LogInfof(s.ctx, "Configuration exported to: %s", path)
@@ -126,26 +138,26 @@ func (s *StorageService) ExportConfigToFile(jsonContent string) (string, error) 
 // ImportConfigFromFile opens a native file picker and returns the JSON configuration.
 func (s *StorageService) ImportConfigFromFile() (string, error) {
 	path, err := runtime.OpenFileDialog(s.ctx, runtime.OpenDialogOptions{
-		Title: "Importer une configuration",
+		Title: "Import Configuration",
 		Filters: []runtime.FileFilter{
 			{DisplayName: "JSON (*.json)", Pattern: "*.json"},
 		},
 	})
-	if err != nil {
+	
+	if err != nil || path == "" {
 		return "", err
 	}
-	if path == "" {
-		return "", nil
-	}
+	
 	if strings.ToLower(filepath.Ext(path)) != ".json" {
-		return "", fmt.Errorf("extension invalide: sélectionnez un fichier .json")
+		return "", fmt.Errorf("invalid extension: please select a .json file")
 	}
 
 	raw, err := os.ReadFile(path)
 	if err != nil {
 		runtime.LogErrorf(s.ctx, "Error reading config import: %v", err)
-		return "", fmt.Errorf("impossible de lire le fichier: %w", err)
+		return "", fmt.Errorf("could not read file: %w", err)
 	}
+	
 	if err := ValidateConfigJSON(raw); err != nil {
 		return "", err
 	}

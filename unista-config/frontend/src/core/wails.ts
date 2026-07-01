@@ -1,73 +1,53 @@
-import * as GoCalc from "../../wailsjs/go/services/CalculationService";
-import * as GoExport from "../../wailsjs/go/services/ExportService";
 import * as GoStorage from "../../wailsjs/go/services/StorageService";
 import { LoadData, SaveData } from "../../wailsjs/go/services/StorageService";
 import { models } from "../../wailsjs/go/models";
 import { hydrateAppState, replaceAppState, serializeAppState } from "./state";
-import { GenerateSTFiles } from "../../wailsjs/go/backend/App";
-import { ImportHardwareConfig } from "../../wailsjs/go/backend/App";
-import { AutoLoadHardware } from "../../wailsjs/go/backend/App";
+import {
+  GenerateSTFiles,
+  AutoLoadHardware,
+} from "../../wailsjs/go/backend/App";
 
-export const CalculationService = {
-  parseRobotMask: (mask: string | undefined | null) =>
-    GoCalc.ParseRobotMask(mask || "0"),
-  isRobotSelected: (mask: number, robotIndex: number) =>
-    GoCalc.IsRobotSelected(mask, robotIndex),
-  toggleRobotMask: (mask: number, robotIndex: number) =>
-    GoCalc.ToggleRobotMask(mask, robotIndex),
-  sanitizeVariableName: (raw: string) => GoCalc.SanitizeVariableName(raw),
-  isValidIPAddress: (ip: string) => GoCalc.IsValidIPAddress(ip),
-  hasRobotVarIndexError: (
-    param: models.Parameter,
-    allParameters: models.Parameter[],
-  ) => GoCalc.HasRobotVarIndexError(param, allParameters),
-  validateRobotVarIndexForRobot: (
-    param: models.Parameter,
-    robotIndex: number,
-    siblings: models.Parameter[],
-  ) => GoCalc.ValidateRobotVarIndexForRobot(param, robotIndex, siblings),
-  isConfigFieldVisible: (
-    equipmentType: string,
-    equipment: Record<string, unknown>,
-    field: string,
-  ) => GoCalc.IsConfigFieldVisible(equipmentType, equipment, field),
-};
-
-export const ExportService = {
-  exportEVToST: (targetPath: string, evs: models.Electrovalve[]) =>
-    GoExport.ExportEVToST(targetPath, evs),
-};
-
-/** ST file generation — implementation to be added later. */
+/**
+ * GenerationService handles the ST file generation payload.
+ */
 export const GenerationService = {
   async generate(): Promise<"generated" | "cancelled"> {
     try {
       const data = serializeAppState();
-
-      // Call the Go backend
-      const result = await GenerateSTFiles(data);
-
-      if (result !== "success") {
-        throw new Error(result);
-      }
+      await GenerateSTFiles(data);
 
       return "generated";
     } catch (e) {
-      console.error(e);
+      console.error("[Generation] Failed:", e);
       throw e;
     }
   },
 };
 
+/**
+ * PersistenceService handles disk operations safely.
+ */
 export const PersistenceService = {
-  async init() {
+  /**
+   * Initializes the application state from disk.
+   * @returns true if initialization succeeded (or file didn't exist yet), false if the file is corrupted.
+   */
+  async init(): Promise<boolean> {
     try {
       const data = await LoadData();
-      if (!data) return;
+
+      // If data is null, the file doesn't exist yet. We can safely start with defaults.
+      if (!data) {
+        console.log("[Persistence] No existing data found. Starting fresh.");
+        return true;
+      }
+
       hydrateAppState(data);
       console.log("[Persistence] App data hydrated successfully.");
+      return true;
     } catch (e) {
       console.error("[Persistence] Failed to load app data:", e);
+      return false; // Critical failure (corrupted JSON)
     }
   },
 
@@ -90,8 +70,6 @@ export const PersistenceService = {
     const json = await GoStorage.ImportConfigFromFile();
     if (!json) return "cancelled";
 
-    // Plain JSON parse — AppData.createFrom() wraps page arrays with `new Array(...)`
-    // which nests them ([[...]]) and breaks SaveData on the Go side.
     const data = JSON.parse(json) as models.AppData;
     replaceAppState(data);
     await this.saveAll();
@@ -99,6 +77,9 @@ export const PersistenceService = {
   },
 };
 
+/**
+ * HardwareService handles auto-loading of the B&R physical hardware tree.
+ */
 export const HardwareService = {
   async autoLoadHardware(): Promise<models.HardwareModule[] | null> {
     try {

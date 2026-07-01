@@ -4,7 +4,10 @@ import { ConfirmClose } from "../../wailsjs/go/backend/App";
 import { appState } from "./state";
 import { PersistenceService } from "./wails";
 
-const debounce = <T extends (...args: unknown[]) => void>(fn: T, delay: number) => {
+const debounce = <T extends (...args: unknown[]) => void>(
+  fn: T,
+  delay: number,
+) => {
   let timeoutId: ReturnType<typeof setTimeout>;
   return (...args: Parameters<T>) => {
     clearTimeout(timeoutId);
@@ -22,7 +25,8 @@ export const initAutoSave = () => {
     }
   }, 1500);
 
-  watch(() => appState, debouncedSave, { deep: true });
+  // Watch the reactive object directly instead of a getter for reliable deep mutations tracking
+  watch(appState, debouncedSave, { deep: true });
 };
 
 export const initCloseHandler = () => {

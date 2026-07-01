@@ -1,4 +1,9 @@
-import { appState, hydrateAppState, serializeAppState } from "./state";
+import {
+  appState,
+  hydrateAppState,
+  serializeAppState,
+  replaceAppState,
+} from "./state";
 import { equipmentStores, pageStores } from "./stores";
 
 export {
@@ -19,6 +24,7 @@ export {
   type FaultType,
   type ArchitectureLimit,
 } from "./state";
+
 export {
   modules,
   addModuleAction,
@@ -38,13 +44,17 @@ export {
   initEquipmentStores,
   initPageStores,
 } from "./stores";
+
 export {
   equipmentRegistry,
   pageRegistry,
   equipmentFieldSections,
   initRegistries,
 } from "./registry";
-export { CalculationService, ExportService, GenerationService, PersistenceService } from "./wails";
+
+// Removed CalculationService and ExportService to fix the build error
+export { GenerationService, PersistenceService } from "./wails";
+
 export { toast } from "../composables/useToast";
 export { initAutoSave, initCloseHandler } from "./bootstrap";
 export { countActive } from "./helpers";

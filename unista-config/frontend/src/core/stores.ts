@@ -304,41 +304,68 @@ const resolveDefaultValue = (field: ConfigField): any => {
   return null;
 };
 
+// src/core/stores.ts
+
 export function createEquipmentStore(type: string) {
   const getDefinition = () =>
     equipmentRegistry.value[type] as EquipmentDefinition;
 
+  // Crée une instance d'équipement parfaitement ordonnée V2
   const createInstance = (index: number): EquipmentInstance => {
     const def = getDefinition();
+
     const instance = {
+      // 1. Identifiants et Relations à la racine
       id: generateId(),
       type,
       index,
       enable: true,
       emId: null,
-      robotId: type === "workplace" ? null : undefined,
       name: `${def.prefix}${index}`,
-      commentFr: "",
-      commentEn: "",
-      commentDe: "",
-      commentEs: "",
-      detail: "",
-      reserve1: "",
-      reserve2: "",
       cycleTime: def.allowsFastCycle ? 2 : 10,
-      ui: {
-        showProps: true,
-        showConfiguration: true,
-        showController: false,
-        showProcess: false,
-        showParams: false,
+
+      // Sécurisation spécifique pour l'objet workplace (lien robot)
+      ...(type === "workplace" ? { robotId: null } : {}),
+
+      // 2. Bloc unique pour les traductions et informations humaines
+      translations: {
+        commentFr: "",
+        commentEn: "",
+        commentDe: "",
+        commentEs: "",
+        reserve1: "",
+        reserve2: "",
+        detail: "",
       },
+
+      // 3. Bloc unique pour la configuration technique automate (PLC)
+      // On boucle sur toutes les définitions de champs pour initialiser leurs valeurs par défaut
+      configuration: Object.fromEntries(
+        [
+          ...(def.configFields || []),
+          ...(def.controllerFields || []),
+          ...(def.processFields || []),
+          // Intégration des champs spécifiques de l'Axe (Axis) si présents dans ton nouveau blueprint
+          ...(def.configurationFields || []),
+          ...(def.limitsFields || []),
+          ...(def.defaultValuesFields || []),
+          ...(def.reductionFields || []),
+          ...(def.homingFields || []),
+          ...(def.autoTuneFields || []),
+          ...(def.inverterFields || []),
+        ].map((field: ConfigField) => [
+          field.field,
+          resolveDefaultValue(field),
+        ]),
+      ),
+
+      // 4. Paramètres de cycles (Toggles / Seuils) avec clé technique (field) comme "name"
       parameters: (def.parameterFields || []).map(
         (field: ConfigField, i: number) => {
           const defaultValue = resolveDefaultValue(field);
           return {
             id: i + 1,
-            name: field.label,
+            name: field.field, // Utilisation du field technique requis au lieu du label
             actif: field.type === "boolean" ? (defaultValue as boolean) : true,
             commentFr: "",
             commentEn: "",
@@ -353,16 +380,22 @@ export function createEquipmentStore(type: string) {
           } as models.Parameter;
         },
       ),
-      ...Object.fromEntries(
-        [
-          ...(def.configFields || []),
-          ...(def.controllerFields || []),
-          ...(def.processFields || []),
-        ].map((field: ConfigField) => [
-          field.field,
-          resolveDefaultValue(field),
-        ]),
-      ),
+
+      // 5. État d'affichage UI local pour le Frontend Vue
+      ui: {
+        showProps: false,
+        showConfiguration: true,
+        showController: false,
+        showProcess: false,
+        showParams: false,
+        // Flags pour les onglets spécifiques de l'Axe
+        showLimits: false,
+        showDefaults: false,
+        showReduction: false,
+        showHoming: false,
+        showAutoTune: false,
+        showInverter: false,
+      },
     } as unknown as EquipmentInstance;
 
     return instance;
@@ -375,28 +408,16 @@ export function createEquipmentStore(type: string) {
     },
   });
 
-  const addAction = (): void => {
-    if (!appState.equipment[type]) appState.equipment[type] = [];
-    appState.equipment[type].push(
-      createInstance(appState.equipment[type].length + 1),
-    );
-    reindex(appState.equipment[type]);
+  const onAdd = () => {
+    list.value.push(createInstance(list.value.length + 1));
   };
 
-  const removeAction = (index: number): void => {
-    try {
-      const item = appState.equipment[type][index];
-      const label = item?.name ?? getDefinition().label;
-      appState.equipment[type].splice(index, 1);
-      reindex(appState.equipment[type]);
-      toast.success("Item deleted", { description: `"${label}"` });
-    } catch (err) {
-      console.error("Equipment removal failed:", err);
-      toast.error("Failed to delete item.");
-    }
+  const onRemove = (index: number) => {
+    list.value.splice(index, 1);
+    syncIndexes();
   };
 
-  const syncIndexes = (): void => reindex(appState.equipment[type]);
+  const syncIndexes = (): void => reindex(list.value);
 
   const hasErrors = computed(() => errorsByType.value[type] ?? false);
 
@@ -405,13 +426,12 @@ export function createEquipmentStore(type: string) {
       return getDefinition();
     },
     list,
-    addAction,
-    removeAction,
+    addAction: onAdd,
+    removeAction: onRemove,
     syncIndexes,
     hasErrors,
   };
 }
-
 export function initEquipmentStores(): void {
   for (const key of Object.keys(equipmentStoreMap)) {
     delete equipmentStoreMap[key];
@@ -428,7 +448,9 @@ export const equipmentStores = new Proxy({} as EquipmentStoresMap, {
 });
 
 // --- Page stores ---
+import { SINGLETON_PAGES } from "../config/navigation";
 
+// --- Page stores ---
 type PageStore = ReturnType<typeof createPageStore>;
 type PageStoresMap = Record<string, PageStore>;
 
@@ -437,9 +459,8 @@ const pageStoreMap: PageStoresMap = {};
 export function createPageStore(type: string) {
   const getDefinition = () => pageRegistry.value[type] as PageDefinition;
 
-  // Les pages singletons récupèrent directement leur label au lieu de l'index dynamique
-  const isSingleton = ["process", "setting", "info"].includes(type);
-
+  // Uses the centralized constant
+  const isSingleton = SINGLETON_PAGES.includes(type as any);
   const createInstance = (index: number, open = false): models.MachinePage =>
     ({
       id: generateId(),
@@ -552,20 +573,16 @@ export function initPageStores(): void {
     pageStoreMap[key] = createPageStore(key);
   }
 
-  // Force automatic and silent creation of the single instance if the array is empty
-  const singletons = ["process", "setting", "info"];
-  for (const key of singletons) {
+  // Force automatic and silent creation using DRY constant
+  for (const key of SINGLETON_PAGES) {
     if (pageRegistry.value[key]) {
       if (!appState.pages[key]) {
         appState.pages[key] = [];
       }
 
       if (appState.pages[key].length === 0) {
-        // If empty, create the page with the correct name
         pageStoreMap[key].addAction();
       } else {
-        // If an old page already exists (e.g., PRC1), force its renaming
-        // with the official label (e.g., Process, Setting, Info) to fix legacy data
         appState.pages[key][0].name = pageRegistry.value[key].label;
       }
     }

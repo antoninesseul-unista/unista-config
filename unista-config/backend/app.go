@@ -4,106 +4,83 @@ package backend
 import (
 	"context"
 	"fmt"
+	"os"
+
 	"my-machine-app/backend/generator"
 	"my-machine-app/backend/models"
 	"my-machine-app/backend/services"
-	"os"
 
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
-// App manages the application lifecycle and Wails context.
+// App manages the application lifecycle, Wails context, and core service dependencies.
 type App struct {
-	ctx      context.Context
-	canClose bool
+	ctx            context.Context
+	canClose       bool
+	hardwareParser *services.HardwareParserService // Injected dependency
 }
 
-// NewApp creates a new App struct.
+// NewApp creates a new App struct instance with pre-initialized service dependencies.
 func NewApp() *App {
 	return &App{
-		canClose: false,
+		canClose:       false,
+		hardwareParser: services.NewHardwareParserService(), // Initialized once
 	}
 }
 
-// Startup is called at application startup.
+// Startup is called at application startup by Wails to inject the runtime context.
 func (a *App) Startup(ctx context.Context) {
 	a.ctx = ctx
 }
 
-// GenerateSTFiles generates ST files based on the provided AppData.
-// Exported method called by the Vue frontend
-func (a *App) GenerateSTFiles(data models.AppData) string {
-	// Define output path (can be made dynamic via a folder dialog later if needed)
+// GenerateSTFiles handles Structured Text (.st) code generation based on AppData configuration.
+// It returns a native Go error which automatically maps to a JavaScript Promise rejection in Vue.
+func (a *App) GenerateSTFiles(data models.AppData) error {
 	outputDir := "./Generated_ST"
 	
 	err := generator.GenerateFiles(data, outputDir)
 	if err != nil {
-		// Log the error and return it to the frontend
-		fmt.Printf("[Error] Generation failed: %v\n", err)
-		return fmt.Sprintf("Generation failed: %v", err)
+		runtime.LogErrorf(a.ctx, "[Generator] Code generation failed: %v", err)
+		return fmt.Errorf("generation failed: %w", err)
 	}
 	
-	return "success"
+	runtime.LogInfo(a.ctx, "[Generator] Structured Text files successfully generated")
+	return nil
 }
 
-func (a *App) ImportHardwareConfig() ([]models.HardwareModule, error) {
-	path, err := runtime.OpenFileDialog(a.ctx, runtime.OpenDialogOptions{
-		Title: "Sélectionner le fichier Hardware.hw",
-		Filters: []runtime.FileFilter{
-			{DisplayName: "Fichier Hardware (*.hw)", Pattern: "*.hw"},
-		},
-	})
-	
-	if err != nil {
-		return nil, err
-	}
-	if path == "" {
-		return nil, nil // L'utilisateur a annulé
-	}
-
-	parser := services.NewHardwareParserService()
-	modules, err := parser.ParseHardwareFile(path)
-	if err != nil {
-		runtime.LogErrorf(a.ctx, "Erreur de parsing Hardware: %v", err)
-		return nil, fmt.Errorf("impossible d'analyser le fichier : %w", err)
-	}
-
-	runtime.LogInfof(a.ctx, "%d modules matériels détectés", len(modules))
-	return modules, nil
-}
-
-// AutoLoadHardware charge et parse automatiquement le fichier Hardware.hw depuis le chemin en dur
+// AutoLoadHardware automatically scans and parses the Hardware.hw file from a standard project location at startup.
 func (a *App) AutoLoadHardware() ([]models.HardwareModule, error) {
-	// Chemin en dur défini selon la structure standard de ton projet B&R
 	hardcodedPath := "./Physical/Standard/Hardware.hw"
 
-	// On vérifie d'abord si le fichier existe pour éviter de lever une erreur bloquante au démarrage
+	// Check if the file exists first to avoid interrupting startup sequence with benign warning logs
 	if _, err := os.Stat(hardcodedPath); os.IsNotExist(err) {
-		runtime.LogWarningf(a.ctx, "[Hardware] Fichier introuvable au chemin automatique : %s", hardcodedPath)
+		runtime.LogWarningf(a.ctx, "[Hardware] Automatic load file not found at default path: %s", hardcodedPath)
 		return nil, nil
 	}
 
-	parser := services.NewHardwareParserService()
-	modules, err := parser.ParseHardwareFile(hardcodedPath)
+	// Use the injected service
+	modules, err := a.hardwareParser.ParseHardwareFile(hardcodedPath)
 	if err != nil {
-		runtime.LogErrorf(a.ctx, "[Hardware] Erreur lors du chargement automatique : %v", err)
+		runtime.LogErrorf(a.ctx, "[Hardware] Automatic hardware loading sequence failed: %v", err)
 		return nil, err
 	}
 
-	runtime.LogInfof(a.ctx, "[Hardware] Chargement automatique réussi : %d modules détectés", len(modules))
+	runtime.LogInfof(a.ctx, "[Hardware] Automatic hardware loading sequence succeeded: %d modules detected", len(modules))
 	return modules, nil
 }
-// BeforeClose intercepts the close event to ensure data is saved.
+
+// BeforeClose intercepts the Wails application close event to guarantee data conservation.
 func (a *App) BeforeClose(ctx context.Context) bool {
 	if a.canClose {
-		return false
+		return false // Permit application termination
 	}
 
+	// Emit an event instructing the Vue frontend to perform auto-save operations before exiting
 	runtime.EventsEmit(ctx, "request-save-and-close")
-	return true
+	return true // Cancel current closing process until confirmation is received
 }
 
-// ConfirmClose allows the application to exit safely.
+// ConfirmClose sets the safe closing flag and exits the application runtime.
 func (a *App) ConfirmClose() {
 	a.canClose = true
 	runtime.Quit(a.ctx)

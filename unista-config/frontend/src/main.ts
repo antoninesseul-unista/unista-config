@@ -9,7 +9,6 @@ async function bootstrap() {
   const { router } = await import("./router");
   const { initAutoSave } = await import("./core/bootstrap");
 
-  initAutoSave();
   createApp(App).use(router).mount("#app");
 }
 

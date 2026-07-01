@@ -2,20 +2,19 @@ ACTION A60_DigInputs:
 
 	pConfiguratorDate.DI					  := '{{ .Date }}';
 
-{{- range $di := index .AppData.Equipment "digitalInput" }}
+{{- range $di := .GetEquipment "digitalInput" }}
 	// --------------------------------------------------------------------------------------------------------------- //
-	// DI {{ $di.index }} : {{ $di.name }}
+	// DI {{ $di.Index }} : {{ $di.Name }}
 	// --------------------------------------------------------------------------------------------------------------- //
 	// Activation
-	pDigInputList[{{ $di.index }}].Active                             := TRUE;
-	pDigInputList[{{ $di.index }}].Enable                             := {{ if $di.enable }}TRUE{{ else }}FALSE{{ end }};
-	pDigInputList[{{ $di.index }}].ID                                 := {{ $di.index }};
-	pDigInputList[{{ $di.index }}].ID_EM                              := {{ index $.ModuleMap $di.emId }};
+	pDigInputList[{{ $di.Index }}].Active                             := TRUE;
+	pDigInputList[{{ $di.Index }}].Enable                             := {{ if $di.Enable }}TRUE{{ else }}FALSE{{ end }};
+	pDigInputList[{{ $di.Index }}].ID                                 := {{ $di.Index }};
+	pDigInputList[{{ $di.Index }}].ID_EM                              := {{ if $di.EmID }}{{ index $.ModuleMap $di.EmID }}{{ else }}0{{ end }};
 
 	// Configuration
-	pDigInputList[{{ $di.index }}].Cfg.Task                           := {{ if $di.task }}{{ $di.task }}{{ else }}4{{ end }};
-	pDigInputList[{{ $di.index }}].Cfg.ActivityLevel                  := {{ if $di.activityLevel }}TRUE{{ else }}FALSE{{ end }};
-	pDigInputList[{{ $di.index }}].Cfg.ForceAllowed                   := {{ if $di.forceAllowed }}TRUE{{ else }}FALSE{{ end }};
+	pDigInputList[{{ $di.Index }}].Cfg.Task                           := 4;
+	pDigInputList[{{ $di.Index }}].Cfg.ActivityLevel                  := {{ if $di.Configuration.activityLevel }}TRUE{{ else }}FALSE{{ end }};
 {{- end }}
 
 END_ACTION

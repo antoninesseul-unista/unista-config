@@ -209,6 +209,8 @@ function replaceObjectInPlace<T extends Record<string, unknown>>(
   Object.assign(target, defaults, source);
 }
 
+import { SINGLETON_PAGES } from "../config/navigation";
+
 function applyAppData(data: models.AppData, mode: "merge" | "replace"): void {
   const replace = mode === "replace";
 
@@ -268,8 +270,8 @@ function applyAppData(data: models.AppData, mode: "merge" | "replace"): void {
     }
 
     // --- NOUVEAU CORRECTIF : Forcer le nommage immédiatement après le chargement du disque ---
-    const singletons = ["process", "setting", "info"];
-    for (const key of singletons) {
+
+    for (const key of SINGLETON_PAGES) {
       if (
         appState.pages[key] &&
         appState.pages[key].length > 0 &&

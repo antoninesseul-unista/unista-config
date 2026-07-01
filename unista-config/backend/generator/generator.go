@@ -17,16 +17,23 @@ import (
 var templatesFS embed.FS
 
 // TemplateData encapsulates the root data required by the templates.
+// TemplateData encapsulates the root data required by the templates.
 type TemplateData struct {
 	Date      string
 	AppData   models.AppData
-	ModuleMap map[string]int
+	ModuleMap map[models.ModuleID]int
+}
+
+// GetEquipment is a helper method for templates to safely fetch equipment lists 
+// using a standard string literal, converting it implicitly to models.EquipmentType.
+func (t TemplateData) GetEquipment(eqType string) []models.BaseEquipment {
+	return t.AppData.Equipment[models.EquipmentType(eqType)]
 }
 
 func GenerateFiles(data models.AppData, outputDir string) error {
 	// 1. Build the lookup map for modules
 	// This translates an ID like "ju06zdi7u" into the integer 1, 2, etc.
-	modMap := make(map[string]int)
+	modMap := make(map[models.ModuleID]int) // Modifié : models.ModuleID
 	for _, mod := range data.Modules {
 		modMap[mod.ID] = mod.Index
 	}

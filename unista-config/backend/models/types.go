@@ -2,10 +2,40 @@
 package models
 
 // ---------------------------------------------------------
-// CORE INTERFACES (Mapped from src/types/index.ts)
+// ALIAS DE TYPES (SÉCURITÉ DES IDENTIFIANTS)
 // ---------------------------------------------------------
 
-// Translations holds multi-language comments.
+// Création d'alias stricts pour éviter de mélanger les différents IDs
+type EntityID string
+type ModuleID string
+type RobotID  string
+
+// ---------------------------------------------------------
+// ÉNUMÉRATIONS (SÉCURITÉ DES TYPES FIXES)
+// ---------------------------------------------------------
+
+// EquipmentType restreint les valeurs possibles pour les types d'équipements
+type EquipmentType string
+
+const (
+	TypeElectrovalve EquipmentType = "electrovalve"
+	TypeVacuum       EquipmentType = "vacuum"
+	TypeDigitalInput EquipmentType = "digitalInput"
+	TypeAnalogInput  EquipmentType = "analogInput"
+	TypeAnalogOutput EquipmentType = "analogOutput"
+	TypeDirectMotor  EquipmentType = "directMotor"
+	TypeAxis         EquipmentType = "axis"
+	TypeMechatro     EquipmentType = "mechatro"
+	TypeCamera       EquipmentType = "camera"
+	TypeRobot        EquipmentType = "robot"
+	TypeWorkplace    EquipmentType = "workplace"
+	TypeLed          EquipmentType = "led"
+)
+
+// ---------------------------------------------------------
+// STRUCTURES DE BASE & TEXTES (MÉTADONNÉES)
+// ---------------------------------------------------------
+
 type Translations struct {
 	CommentFr string `json:"commentFr"`
 	CommentEn string `json:"commentEn"`
@@ -13,180 +43,125 @@ type Translations struct {
 	CommentEs string `json:"commentEs"`
 }
 
-// Reserves holds reserved fields for future use.
 type Reserves struct {
 	Reserve1 string `json:"reserve1"`
 	Reserve2 string `json:"reserve2"`
 }
 
-// NamedEntity represents an entity with a name.
-type NamedEntity struct {
-	Name string `json:"name"`
-}
-
-// DescribedEntity combines name, translations, reserves, and details.
-// By embedding structs without JSON tags, their fields are flattened in the JSON output (mimicking TS extends).
-type DescribedEntity struct {
-	NamedEntity
+type Metadata struct {
 	Translations
 	Reserves
 	Detail string `json:"detail"`
 }
 
-// CycleStep represents a specific step in a cycle.
+type DescribedEntity struct {
+	Name string `json:"name"`
+	Metadata
+}
+
 type CycleStep struct {
 	Translations
 	Reserves
 	StepID int `json:"stepId"`
 }
 
-// Parameter represents a single configurable item.
-// Optional fields in TS (?) are represented as pointers in Go with omitempty.
+// ---------------------------------------------------------
+// PARAMÈTRES AUTOMATE (PLC)
+// ---------------------------------------------------------
+
 type Parameter struct {
 	DescribedEntity
-	ID            int          `json:"id"`
-	Actif         bool         `json:"actif"`
-	ResetVisible  *bool        `json:"resetVisible,omitempty"`
-	RobotMask     string       `json:"robotMask"`
-	RobotVarIndex map[string]*int `json:"robotVarIndex"` // Record<number, number | null>
-	RobotVarName  *string      `json:"robotVarName,omitempty"`
-	Steps         []CycleStep  `json:"steps,omitempty"`
-	FaultCode     *string      `json:"faultCode,omitempty"`
-	Severity      *int         `json:"severity,omitempty"`
-	Value         any          `json:"value,omitempty"` // 'any' is the modern alias for 'interface{}'
+	ID            int             `json:"id"`
+	Actif         bool            `json:"actif"`
+	ResetVisible  bool            `json:"resetVisible"`
+	RobotMask     string          `json:"robotMask"`
+	RobotVarIndex map[string]*int `json:"robotVarIndex"`
+	RobotVarName  string          `json:"robotVarName"`
+	Steps         []CycleStep     `json:"steps,omitempty"`
+	FaultCode     string          `json:"faultCode,omitempty"`
+	Severity      int             `json:"severity,omitempty"`
+	Value         any             `json:"value,omitempty"`
+}
+
+type ParameterCollection struct {
+	ParamBools   []Parameter `json:"paramBools"`
+	ParamInts    []Parameter `json:"paramInts"`
+	ParamReals   []Parameter `json:"paramReals"`
+	ParamStrings []Parameter `json:"paramStrings"`
 }
 
 // ---------------------------------------------------------
-// DOMAIN ENTITIES
+// ENTITÉS STRUCTURELLES (PAGES & MODULES)
 // ---------------------------------------------------------
 
-// MachinePageUI represents the UI configuration for a MachinePage.
-type MachinePageUI struct {
-	ShowProps   bool `json:"showProps"`
-	ShowBools   bool `json:"showBools"`
-	ShowInts    bool `json:"showInts"`
-	ShowReals   bool `json:"showReals"`
-	ShowStrings bool `json:"showStrings"`
-}
-
-// MachinePage represents a configuration page.
 type MachinePage struct {
 	DescribedEntity
-	ID           string        `json:"id"`
-	Index        int           `json:"index"`
-	Enable       bool          `json:"enable"`
-	IsEM         bool          `json:"isEM"`
-	UI           MachinePageUI `json:"ui"`
-	ParamBools   []Parameter   `json:"paramBools"`
-	ParamInts    []Parameter   `json:"paramInts"`
-	ParamReals   []Parameter   `json:"paramReals"`
-	ParamStrings []Parameter   `json:"paramStrings"`
+	ID     EntityID      `json:"id"` // Typé avec EntityID
+	Index  int           `json:"index"`
+	Enable bool          `json:"enable"`
+	IsEM   bool          `json:"isEM"`
+	UI     MachinePageUI `json:"ui"`
+	
+	ParameterCollection
 }
 
-// BaseEquipmentUI represents the UI configuration for equipment.
-type BaseEquipmentUI struct {
-	ShowProps         bool  `json:"showProps"`
-	ShowConfiguration bool  `json:"showConfiguration"`
-	ShowParams        bool  `json:"showParams"`
-	ShowController    *bool `json:"showController,omitempty"`
-	ShowProcess       *bool `json:"showProcess,omitempty"`
-}
-
-// BaseEquipment represents a machine component.
-type BaseEquipment struct {
-	DescribedEntity
-	ID         string          `json:"id"`
-	Type       string          `json:"type"`
-	Index      int             `json:"index"`
-	Enable     bool            `json:"enable"`
-	EmID       *string         `json:"emId"`
-	RobotID    *string         `json:"robotId,omitempty"`
-	CycleTime  int             `json:"cycleTime"`
-	UI         BaseEquipmentUI `json:"ui"`
-	Parameters []Parameter     `json:"parameters"`
-	// Note: Go does not natively support [key: string]: any dynamically alongside typed fields in a struct.
-	// For KISS, avoid dynamic root fields unless absolutely necessary.
-}
-
-// MachineModuleUI represents the UI configuration for a module.
-type MachineModuleUI struct {
-	ShowModuleProps bool `json:"showModuleProps"`
-	ShowBools       bool `json:"showBools"`
-	ShowInts        bool `json:"showInts"`
-	ShowReals       bool `json:"showReals"`
-	ShowStrings     bool `json:"showStrings"`
-}
-
-// MachineModule represents a machine module.
 type MachineModule struct {
 	DescribedEntity
-	ID           string          `json:"id"`
-	Index        int             `json:"index"`
-	Enable       bool            `json:"enable"`
-	IsEM         bool            `json:"isEM"`
-	UI           MachineModuleUI `json:"ui"`
-	ParamBools   []Parameter     `json:"paramBools"`
-	ParamInts    []Parameter     `json:"paramInts"`
-	ParamReals   []Parameter     `json:"paramReals"`
-	ParamStrings []Parameter     `json:"paramStrings"`
+	ID     ModuleID        `json:"id"` // Typé spécifiquement avec ModuleID !
+	Index  int             `json:"index"`
+	Enable bool            `json:"enable"`
+	IsEM   bool            `json:"isEM"`
+	UI     MachineModuleUI `json:"ui"`
+	
+	ParameterCollection
 }
 
-// ButtonEntityUI handles button display logic.
-type ButtonEntityUI struct {
-	ShowToggles     bool `json:"showToggles"`
-	ShowMomentaries bool `json:"showMomentaries"`
+type BaseEquipment struct {
+	ID            EntityID       `json:"id"`
+	Type          EquipmentType  `json:"type"`       // Sécurisé par l'Enum
+	Index         int            `json:"index"`
+	Enable        bool           `json:"enable"`
+	Name          string         `json:"name"`
+	EmID          ModuleID       `json:"emId"`       // Ne peut accepter qu'un ModuleID
+	RobotID       RobotID        `json:"robotId,omitempty"` // Ne peut accepter qu'un RobotID
+	CycleTime     int            `json:"cycleTime"`
+	Translations  Metadata       `json:"translations"`
+	Configuration map[string]any `json:"configuration"`
+	Parameters    []Parameter    `json:"parameters"`
+	UI            BaseEquipmentUI `json:"ui"`
 }
 
-// ButtonEntity maps to frontend button structures.
+// ---------------------------------------------------------
+// ACTIONS & COMPTEURS IHM
+// ---------------------------------------------------------
+
 type ButtonEntity struct {
-	NamedEntity
-	ID               string         `json:"id"`
+	Name             string         `json:"name"`
+	ID               EntityID       `json:"id"`
 	LinkedTo         string         `json:"linkedTo"`
 	UI               ButtonEntityUI `json:"ui"`
 	ToggleButtons    []Parameter    `json:"toggleButtons"`
 	MomentaryButtons []Parameter    `json:"momentaryButtons"`
 }
 
-// CycleButtonEntityUI handles cycle button display logic.
-type CycleButtonEntityUI struct {
-	ShowCycles bool `json:"showCycles"`
-}
-
-// CycleButtonEntity maps to cycle buttons.
 type CycleButtonEntity struct {
-	NamedEntity
-	ID       string              `json:"id"`
+	Name     string              `json:"name"`
+	ID       EntityID            `json:"id"`
 	LinkedTo string              `json:"linkedTo"`
 	UI       CycleButtonEntityUI `json:"ui"`
 	Cycles   []Parameter         `json:"cycles"`
 }
 
-// CounterGroupUI handles counter display.
-type CounterGroupUI struct {
-	Show bool `json:"show"`
-}
-
-// CounterGroup maps to frontend counters.
 type CounterGroup struct {
-	NamedEntity
-	ID         string         `json:"id"`
+	Name       string         `json:"name"`
+	ID         EntityID       `json:"id"`
 	UI         CounterGroupUI `json:"ui"`
 	Parameters []Parameter    `json:"parameters"`
 }
 
-// MessageBoxEntityUI handles messagebox display logic.
-type MessageBoxEntityUI struct {
-	ShowTitle    bool `json:"showTitle"`
-	ShowLine1    bool `json:"showLine1"`
-	ShowLine2    bool `json:"showLine2"`
-	ShowBtnLeft  bool `json:"showBtnLeft"`
-	ShowBtnRight bool `json:"showBtnRight"`
-}
-
-// MessageBoxEntity maps to frontend message boxes.
 type MessageBoxEntity struct {
-	NamedEntity
-	ID       string             `json:"id"`
+	Name     string             `json:"name"`
+	ID       EntityID           `json:"id"`
 	Index    int                `json:"index"`
 	UI       MessageBoxEntityUI `json:"ui"`
 	Title    Parameter          `json:"title"`
@@ -196,77 +171,61 @@ type MessageBoxEntity struct {
 	BtnRight Parameter          `json:"btnRight"`
 }
 
-// FaultCategory maps to fault groupings.
+// ---------------------------------------------------------
+// ALARMES & FAULTS
+// ---------------------------------------------------------
+
 type FaultCategory struct {
-	NamedEntity
-	UI    CounterGroupUI `json:"ui"` // Reuse UI struct with just 'show'
+	Name  string         `json:"name"`
+	UI    CounterGroupUI `json:"ui"`
 	Items []Parameter    `json:"items"`
 }
 
-// FaultGroup maps to root fault structures.
 type FaultGroup struct {
-	NamedEntity
-	ID         string          `json:"id"`
+	Name       string          `json:"name"`
+	ID         EntityID        `json:"id"`
 	Categories []FaultCategory `json:"categories"`
 }
 
 // ---------------------------------------------------------
-// ROOT APPLICATION STATE
-// ---------------------------------------------------------
-
-// AppData contains all application states strongly typed.
-// It maps directly to the JSON payload sent by the Vue frontend.
-type AppData struct {
-	SchemaVersion   int                        `json:"schemaVersion,omitempty"`
-	SystemConstants map[string]any             `json:"systemConstants"`
-	GeneralConfig   map[string]any             `json:"generalConfig"`
-	Translations    []any                      `json:"translations"`
-	Cfr21           map[string]any             `json:"cfr21"`
-	Roles           map[string]any             `json:"roles"`
-
-	DetectedHardware []HardwareModule          `json:"detectedHardware"`
-	
-	// Strongly typed sections
-	Modules      []MachineModule            `json:"modules"`
-	Equipment    map[string][]map[string]any `json:"equipment"`
-	Buttons      []ButtonEntity             `json:"buttons"`
-	CycleButtons []CycleButtonEntity        `json:"cycleButtons"`
-	Counters     []CounterGroup             `json:"counters"`
-	Faults       map[string]FaultGroup      `json:"faults"`
-	MessageBoxes []MessageBoxEntity         `json:"messageBoxes"`
-	Pages        map[string][]MachinePage   `json:"pages"`
-}
-
-// ---------------------------------------------------------
-// EXPORT ENTITIES
-// ---------------------------------------------------------
-
-// Electrovalve represents a specific component used for ST file generation.
-// This structure is explicitly bound to the Vue frontend for export purposes.
-type Electrovalve struct {
-	Name       string      `json:"name"`
-	Enable     bool        `json:"enable"`
-	CycleTime  int         `json:"cycleTime"`
-	CmdType    string      `json:"cmdType"`
-	CenterType string      `json:"centerType"`
-	SensorType string      `json:"sensorType"`
-	Parameters []Parameter `json:"parameters"`
-}
-
-// ---------------------------------------------------------
-// HARDWARE DETECTION
+// EXPORTS & CONTEXTE MATÉRIEL
 // ---------------------------------------------------------
 type HardwareChannel struct {
 	ChannelNumber int `json:"channelNumber"`
 }
 
-// HardwareModule représente un module matériel détecté dans le fichier Hardware.hw
 type HardwareModule struct {
 	Name        string            `json:"name"`
 	ModuleType  string            `json:"moduleType"`
 	Category    string            `json:"category"`
 	NodeNumber  int               `json:"nodeNumber"`
-	AxesCount   int               `json:"axesCount"` // Utilisé comme fallback
+	AxesCount   int               `json:"axesCount"`
 	Channels    []HardwareChannel `json:"channels"`
 	Description string            `json:"description"`
+}
+
+// ---------------------------------------------------------
+// RACINE DE L'APPLICATION (PAYLOAD GLOBAL)
+// ---------------------------------------------------------
+
+type AppData struct {
+	SchemaVersion    int                               `json:"schemaVersion,omitempty"`
+	SystemConstants  map[string]any                    `json:"systemConstants"`
+	GeneralConfig    map[string]any                    `json:"generalConfig"`
+	Translations     []any                             `json:"translations"`
+	Cfr21            map[string]any                    `json:"cfr21"`
+	Roles            map[string]any                    `json:"roles"`
+	DetectedHardware []HardwareModule                  `json:"detectedHardware"`
+	
+	Modules          []MachineModule                   `json:"modules"`
+	
+	// Dictionnaire ultra-sécurisé : les clés NE PEUVENT ETRE que des EquipmentType valides
+	Equipment        map[EquipmentType][]BaseEquipment `json:"equipment"` 
+	
+	Buttons          []ButtonEntity                    `json:"buttons"`
+	CycleButtons     []CycleButtonEntity               `json:"cycleButtons"`
+	Counters         []CounterGroup                    `json:"counters"`
+	Faults           map[string]FaultGroup             `json:"faults"`
+	MessageBoxes     []MessageBoxEntity                `json:"messageBoxes"`
+	Pages            map[string][]MachinePage          `json:"pages"`
 }

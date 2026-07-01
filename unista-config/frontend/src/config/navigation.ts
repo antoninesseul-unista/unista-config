@@ -4,6 +4,7 @@ export interface StaticNavItem {
   icon: string;
   showsModuleError?: boolean;
 }
+export const SINGLETON_PAGES = ["process", "setting", "info"] as const;
 
 export const NAV_SECTIONS = {
   global: [

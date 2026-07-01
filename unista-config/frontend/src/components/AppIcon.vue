@@ -19,5 +19,10 @@ const icon = computed(() => resolveLucideIcon(props.name));
 </script>
 
 <template>
-  <component :is="icon" :size="size" :stroke-width="strokeWidth" :class="class" />
+  <component
+    :is="icon"
+    :size="size"
+    :stroke-width="strokeWidth"
+    :class="class"
+  />
 </template>
